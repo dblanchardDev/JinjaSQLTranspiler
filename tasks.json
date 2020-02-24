@@ -1,0 +1,50 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "JST: Set Options",
+			"type": "shell",
+			"command": "${config:python.pythonPath}",
+			"args": [
+				"jinjasqltranspiler\\jinjasqltranspiler.py",
+				"options",
+				"-t", "${input:templates}",
+				"-p", "${input:transpiled}",
+				"-d", "${input:debug}",
+				"-n", "${input:ansi_nulls}"
+			],
+			"presentation": {
+				"reveal": "always",
+				"group": "JST"
+			},
+			"problemMatcher": []
+		}
+	],
+	"inputs": [
+		{
+			"id": "templates",
+			"type": "promptString",
+			"description": "Project folder containing all Jinja/SQL Templates.",
+			"default": "templates"
+		},
+		{
+			"id": "transpiled",
+			"type": "promptString",
+			"description": "Output folder for transpiled SQL Files.",
+			"default": "transpiled"
+		},
+		{
+			"id": "debug",
+			"type": "promptString",
+			"description": "Output folder for transpiled SQL debugging Files.",
+			"default": "debug"
+		},
+		{
+			"id": "ansi_nulls",
+			"type": "pickString",
+			"description": "Whether to explicitly set ANSI-NULLS to on for programmability code.",
+			"options": ["True", "False"],
+			"default": "True"
+		}
+	]
+}
