@@ -32,3 +32,6 @@ Modify the default input/output folders and other options that affect how files 
 | ANSI Nulls | Whether to explicitly set [ANSI-NULLS](https://docs.microsoft.com/en-us/sql/t-sql/statements/set-ansi-nulls-transact-sql?view=sql-server-ver15) to on for programmability code.
 
 *Paths to folders may be relative from the root of the workspace root.*
+
+### Transpile Current File
+Transpile the file that is currently open in Visual Studio Code.
