@@ -8,10 +8,44 @@
 			"args": [
 				"jinjasqltranspiler\\jinjasqltranspiler.py",
 				"options",
-				"-t", "${input:templates}",
-				"-p", "${input:transpiled}",
-				"-d", "${input:debug}",
-				"-n", "${input:ansi_nulls}"
+				"-t", "${input:jst_templates}",
+				"-p", "${input:jst_transpiled}",
+				"-d", "${input:jst_debug}",
+				"-n", "${input:jst_ansi_nulls}"
+			],
+			"presentation": {
+				"reveal": "always",
+				"group": "JST"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "JST: Transpile Current File",
+			"type": "shell",
+			"command": "${config:python.pythonPath}",
+			"args": [
+				"jinjasqltranspiler\\jinjasqltranspiler.py",
+				"transpile_file",
+				"${file}",
+				"${input:jst_formats}",
+				"-w", "${workspaceFolder}"
+			],
+			"presentation": {
+				"reveal": "always",
+				"group": "JST"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "JST: Debug Current File",
+			"type": "shell",
+			"command": "${config:python.pythonPath}",
+			"args": [
+				"jinjasqltranspiler\\jinjasqltranspiler.py",
+				"transpile_file",
+				"${file}",
+				"DEBUG",
+				"-w", "${workspaceFolder}"
 			],
 			"presentation": {
 				"reveal": "always",
@@ -22,29 +56,36 @@
 	],
 	"inputs": [
 		{
-			"id": "templates",
+			"id": "jst_templates",
 			"type": "promptString",
 			"description": "Project folder containing all Jinja/SQL Templates.",
 			"default": "templates"
 		},
 		{
-			"id": "transpiled",
+			"id": "jst_transpiled",
 			"type": "promptString",
 			"description": "Output folder for transpiled SQL Files.",
 			"default": "transpiled"
 		},
 		{
-			"id": "debug",
+			"id": "jst_debug",
 			"type": "promptString",
 			"description": "Output folder for transpiled SQL debugging Files.",
 			"default": "debug"
 		},
 		{
-			"id": "ansi_nulls",
+			"id": "jst_ansi_nulls",
 			"type": "pickString",
 			"description": "Whether to explicitly set ANSI-NULLS to on for programmability code.",
 			"options": ["True", "False"],
 			"default": "True"
+		},
+		{
+			"id": "jst_formats",
+			"type": "pickString",
+			"description": "Output format",
+			"options": ["Create", "Replace/Update", "None"],
+			"default": "Create"
 		}
 	]
 }

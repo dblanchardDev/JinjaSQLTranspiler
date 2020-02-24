@@ -15,5 +15,8 @@ venv.bak/
 # Visual Studio Code
 .vscode/
 
-# Project Configs
+# Project Configs & Default Folders
 */jst.options.json
+templates/
+transpiled/
+debug/
