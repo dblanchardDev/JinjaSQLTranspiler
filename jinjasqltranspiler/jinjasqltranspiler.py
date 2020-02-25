@@ -27,7 +27,8 @@ OPTION_DEFAULTS = {
 def get_paths(file_path, workspace_path, out_format):
 	'''Derive the template path and output path from a file path'''
 	template_path = None
-	tpl_dir = get_abs_path("templates", workspace_path)
+	tpl_dir = get_option("templates", workspace_path)
+
 	# Ensure file is in template folder
 	if os.path.commonpath([file_path, tpl_dir]).lower() == tpl_dir.lower():
 		template_path = os.path.relpath(file_path, tpl_dir)
@@ -40,9 +41,9 @@ def get_paths(file_path, workspace_path, out_format):
 	# Determine the destination from the format
 	destination = None
 	if out_format == "debug":
-		destination = get_abs_path("debug", workspace_path)
+		destination = get_option("debug", workspace_path)
 	else:
-		destination = get_abs_path("transpiled", workspace_path)
+		destination = get_option("transpiled", workspace_path)
 
 	# Derive the output path
 	out_path = os.path.join(workspace_path, destination, template_path)
@@ -88,7 +89,7 @@ def set_options(args):
 
 
 _optionCache = None
-def get_options():
+def get_all_options():
 	'''Get the transpiler options, using defaults if no file.'''
 	options = None
 
@@ -108,18 +109,14 @@ def get_options():
 	return options
 
 
-def get_abs_path(key, workspace):
-	'''Return the absolute path from an option key.'''
-	path = None
-	base = get_options()[key]
+def get_option(key, workspace=None):
+	'''Get a single option value'''
+	value = get_all_options()[key]
 
-	if os.path.isabs(base):
-		path = base
+	if workspace is not None and not os.path.isabs(value):
+		value = os.path.join(workspace, value)
 
-	else:
-		path = os.path.join(workspace, base)
-
-	return path
+	return value
 
 
 # TRANSPILING #####################################################################################
@@ -169,13 +166,11 @@ def transpile_file(args):
 	'''Send a single file for transpiling.'''
 	print(" 🗃 Transpiling file")
 
-	options = get_options()
-
 	template_path, out_path = get_paths(args.file, args.workspace, args.format)
 
 	# Transpile the file
-	tpl_folder = get_abs_path("templates", args.workspace)
-	transpiler = Transpiler(tpl_folder, options["ansi_nulls"])
+	tpl_folder = get_option("templates", args.workspace)
+	transpiler = Transpiler(tpl_folder, get_option("ansi_nulls"))
 	transpiler.transpile(template_path, out_path, args.format)
 
 	# Output message
@@ -190,14 +185,13 @@ def transpile_project(args):
 	'''Send the whole project to be transpiled.'''
 	print(" 🗃 Transpiling project")
 
-	options = get_options()
-	ignore = tuple(options["ignore"])
-	tpl_dir = get_abs_path("templates", args.workspace)
+	ignore = tuple(get_option("ignore"))
+	tpl_dir = get_option("templates", args.workspace)
 
-	transpiler = Transpiler(tpl_dir, options["ansi_nulls"])
+	transpiler = Transpiler(tpl_dir, get_option("ansi_nulls"))
 
 	# Loop through all files in the template directory
-	tpl = get_abs_path("templates", args.workspace)
+	tpl = get_option("templates", args.workspace)
 
 	for (dirpath, dirnames, filenames) in os.walk(tpl): #pylint: disable=unused-variable
 		for fn in filenames:
@@ -207,7 +201,7 @@ def transpile_project(args):
 				transpiler.transpile(template_path, out_path, args.format)
 
 	# Output message
-	transpiled = get_abs_path("transpiled", args.workspace)
+	transpiled = get_option("transpiled", args.workspace)
 	rel_path = os.path.relpath(transpiled, args.workspace)
 	print(" ✔ Files transpiled to: {}".format(rel_path))
 	return
