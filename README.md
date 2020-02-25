@@ -24,14 +24,21 @@ All of Jinja-SQL Transpiler's actions can be run via Visual Studio Code's tasks.
 ### Set Options
 Modify the default input/output folders and other options that affect how files are transpiled.
 
-| Option | Description |
-|--------|-------------|
-| Templates | Project folder containing all Jinja/SQL Templates to be transpiled.
-| Transpiled | Output folder for transpiled SQL Files.
-| Debug | Output folder for transpiled SQL debugging Files.
-| ANSI Nulls | Whether to explicitly set [ANSI-NULLS](https://docs.microsoft.com/en-us/sql/t-sql/statements/set-ansi-nulls-transact-sql?view=sql-server-ver15) to on for programmability code.
+| Option | Description | Default |
+|--------|-------------|---------|
+| Templates | Project folder containing all Jinja/SQL Templates to be transpiled. | `templates`
+| Transpiled | Output folder for transpiled SQL Files. | `transpiled`
+| Debug | Output folder for transpiled SQL debugging Files. | `debug`
+| ANSI Nulls | Whether to explicitly set [ANSI-NULLS](https://docs.microsoft.com/en-us/sql/t-sql/statements/set-ansi-nulls-transact-sql?view=sql-server-ver15) to on for programmability code. | `True`
+| Ignore | File-name prefix that indicate a template that is to be ignored when transpiling the whole project. Use a comma-separated list. | `part,ext`
 
 *Paths to folders may be relative from the root of the workspace root.*
 
 ### Transpile Current File
 Transpile the file that is currently open in Visual Studio Code.
+
+### Debug Current File
+Transpile the file that is currently open in Visual Studio Code into an easily debugable format.
+
+### Transpile Project
+Transpile all files found in the *templates* folder, only skipping those that are prefixed with a value  from the *ignore* option (see above). Therefore, all files except those marked to be skipped must be Jinja templates.

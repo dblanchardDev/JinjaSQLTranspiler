@@ -7,8 +7,9 @@
 
 import argparse
 import json
-from copy import copy
 import os
+import pathlib
+from copy import copy
 
 from jinja2 import Environment, FileSystemLoader
 
@@ -18,6 +19,7 @@ OPTION_DEFAULTS = {
 	"transpiled": "transpiled",
 	"debug": "debug",
 	"ansi_nulls": True,
+	"ignore": ["ext", "part"]
 }
 
 
@@ -26,14 +28,6 @@ def get_paths(file_path, workspace_path, out_format):
 	'''Derive the template path and output path from a file path'''
 	template_path = None
 	tpl_dir = get_abs_path("templates", workspace_path)
-
-	# Determine the destination from the format
-	destination = None
-	if out_format == "debug":
-		destination = get_abs_path("debug", workspace_path)
-	else:
-		destination = get_abs_path("transpiled", workspace_path)
-
 	# Ensure file is in template folder
 	if os.path.commonpath([file_path, tpl_dir]).lower() == tpl_dir.lower():
 		template_path = os.path.relpath(file_path, tpl_dir)
@@ -43,7 +37,18 @@ def get_paths(file_path, workspace_path, out_format):
 		msg = "The requested file cannot be found in the templates directory. Either place the file in the templates directory or set the Jinja-SQL Transpiler options to the correct templates directory. >> {}" #pylint: disable=line-too-long
 		raise Exception(msg.format(file_path))
 
+	# Determine the destination from the format
+	destination = None
+	if out_format == "debug":
+		destination = get_abs_path("debug", workspace_path)
+	else:
+		destination = get_abs_path("transpiled", workspace_path)
+
+	# Derive the output path
 	out_path = os.path.join(workspace_path, destination, template_path)
+
+	if out_path.endswith(".jinja"):
+		out_path = out_path[:-6]
 
 	return template_path, out_path
 
@@ -63,6 +68,9 @@ def set_options(args):
 
 		if key == "ansi_nulls":
 			val = (val == "True")
+
+		if key == "ignore" and val is not None:
+			val = val.split(",")
 
 		if val is not None:
 			options[key] = val
@@ -141,12 +149,15 @@ class Transpiler():
 		'''Transpile a single SQL/Jinja file into a TSQL file'''
 
 		# Render the template
+		template_path = template_path.replace("\\", "/")
 		template = self._jinja.get_template(template_path)
+
 		sql = template.render({
 			"out_format": out_format
 		})
 
 		# Write the template to file
+		pathlib.Path(os.path.dirname(out_path)).mkdir(parents=True, exist_ok=True)
 		with open(out_path, "w", encoding="utf-8") as sqlFile:
 			sqlFile.write(sql)
 
@@ -163,7 +174,8 @@ def transpile_file(args):
 	template_path, out_path = get_paths(args.file, args.workspace, args.format)
 
 	# Transpile the file
-	transpiler = Transpiler(options["templates"], options["ansi_nulls"])
+	tpl_folder = get_abs_path("templates", args.workspace)
+	transpiler = Transpiler(tpl_folder, options["ansi_nulls"])
 	transpiler.transpile(template_path, out_path, args.format)
 
 	# Output message
@@ -171,6 +183,35 @@ def transpile_file(args):
 	print(" ✔ File transpiled to: {}".format(rel_path))
 
 	return
+
+
+
+def transpile_project(args):
+	'''Send the whole project to be transpiled.'''
+	print(" 🗃 Transpiling project")
+
+	options = get_options()
+	ignore = tuple(options["ignore"])
+	tpl_dir = get_abs_path("templates", args.workspace)
+
+	transpiler = Transpiler(tpl_dir, options["ansi_nulls"])
+
+	# Loop through all files in the template directory
+	tpl = get_abs_path("templates", args.workspace)
+
+	for (dirpath, dirnames, filenames) in os.walk(tpl): #pylint: disable=unused-variable
+		for fn in filenames:
+			if not fn.startswith(ignore):
+				file_path = os.path.join(dirpath, fn)
+				template_path, out_path = get_paths(file_path, args.workspace, args.format)
+				transpiler.transpile(template_path, out_path, args.format)
+
+	# Output message
+	transpiled = get_abs_path("transpiled", args.workspace)
+	rel_path = os.path.relpath(transpiled, args.workspace)
+	print(" ✔ Files transpiled to: {}".format(rel_path))
+	return
+
 
 
 # MAIN / ARGUMENTS ################################################################################
@@ -189,6 +230,7 @@ def main():
 	option_parser.add_argument("-p", dest="transpiled", help="Output folder for transpiled SQL Files.")
 	option_parser.add_argument("-d", dest="debug", help="Output folder for transpiled SQL debugging Files.")
 	option_parser.add_argument("-n", dest="ansi_nulls", help=nulls_help, choices=("True", "False"))
+	option_parser.add_argument("-i", dest="ignore", help="Filename prefixes to ignore when transpiling project (comma-separated).")
 
 	option_parser.set_defaults(func=set_options)
 
@@ -200,6 +242,14 @@ def main():
 	transpile_file_parser.add_argument("-w", dest="workspace", help="The current project's workspace, used for relative paths.")
 
 	transpile_file_parser.set_defaults(func=transpile_file)
+
+	# Transpile Project
+	transpile_project_parser = subparsers.add_parser("transpile_project", help="Transpile the whole project")
+
+	transpile_project_parser.add_argument(dest="format", help="The format of the transpiled file.", choices=("None", "Create", "Replace/Update", "Debug"))
+	transpile_project_parser.add_argument("-w", dest="workspace", help="The current project's workspace, used for relative paths.")
+
+	transpile_project_parser.set_defaults(func=transpile_project)
 
 	# Run parser
 	args = parser.parse_args()

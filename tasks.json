@@ -11,7 +11,8 @@
 				"-t", "${input:jst_templates}",
 				"-p", "${input:jst_transpiled}",
 				"-d", "${input:jst_debug}",
-				"-n", "${input:jst_ansi_nulls}"
+				"-n", "${input:jst_ansi_nulls}",
+				"-i", "${input:jst_ignore}"
 			],
 			"presentation": {
 				"reveal": "always",
@@ -52,6 +53,22 @@
 				"group": "JST"
 			},
 			"problemMatcher": []
+		},
+		{
+			"label": "JST: Transpile Project",
+			"type": "shell",
+			"command": "${config:python.pythonPath}",
+			"args": [
+				"jinjasqltranspiler\\jinjasqltranspiler.py",
+				"transpile_project",
+				"${input:jst_formats}",
+				"-w", "${workspaceFolder}"
+			],
+			"presentation": {
+				"reveal": "always",
+				"group": "JST"
+			},
+			"problemMatcher": []
 		}
 	],
 	"inputs": [
@@ -80,6 +97,12 @@
 			"options": ["True", "False"],
 			"default": "True"
 		},
+		{
+			"id": "jst_ignore",
+			"type": "promptString",
+			"description": "A list of comma-separated strings which indicate template files to exclude from project transpilation.",
+			"default": "ext,part"
+		}
 		{
 			"id": "jst_formats",
 			"type": "pickString",
