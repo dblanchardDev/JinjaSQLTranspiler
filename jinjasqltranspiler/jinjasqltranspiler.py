@@ -237,17 +237,17 @@ def main():
 	# Transpile File
 	transpile_file_parser = subparsers.add_parser("transpile_file", help="Transpile a single file")
 
+	transpile_file_parser.add_argument(dest="workspace", help="The project's current workspace.")
 	transpile_file_parser.add_argument(dest="file", help="Path to the Jinja template to be transpiled.")
 	transpile_file_parser.add_argument(dest="format", help="The format of the transpiled file.", choices=("None", "Create", "Replace/Update", "Debug"))
-	transpile_file_parser.add_argument("-w", dest="workspace", help="The current project's workspace, used for relative paths.")
 
 	transpile_file_parser.set_defaults(func=transpile_file)
 
 	# Transpile Project
 	transpile_project_parser = subparsers.add_parser("transpile_project", help="Transpile the whole project")
 
+	transpile_file_parser.add_argument(dest="workspace", help="The project's current workspace.")
 	transpile_project_parser.add_argument(dest="format", help="The format of the transpiled file.", choices=("None", "Create", "Replace/Update", "Debug"))
-	transpile_project_parser.add_argument("-w", dest="workspace", help="The current project's workspace, used for relative paths.")
 
 	transpile_project_parser.set_defaults(func=transpile_project)
 

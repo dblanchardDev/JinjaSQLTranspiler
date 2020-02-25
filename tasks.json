@@ -27,9 +27,9 @@
 			"args": [
 				"jinjasqltranspiler\\jinjasqltranspiler.py",
 				"transpile_file",
+				"${workspaceFolder}",
 				"${file}",
-				"${input:jst_formats}",
-				"-w", "${workspaceFolder}"
+				"${input:jst_formats}"
 			],
 			"presentation": {
 				"reveal": "always",
@@ -44,9 +44,9 @@
 			"args": [
 				"jinjasqltranspiler\\jinjasqltranspiler.py",
 				"transpile_file",
+				"${workspaceFolder}",
 				"${file}",
-				"DEBUG",
-				"-w", "${workspaceFolder}"
+				"DEBUG"
 			],
 			"presentation": {
 				"reveal": "always",
@@ -61,8 +61,8 @@
 			"args": [
 				"jinjasqltranspiler\\jinjasqltranspiler.py",
 				"transpile_project",
-				"${input:jst_formats}",
-				"-w", "${workspaceFolder}"
+				"${workspaceFolder}",
+				"${input:jst_formats}"
 			],
 			"presentation": {
 				"reveal": "always",
@@ -102,7 +102,7 @@
 			"type": "promptString",
 			"description": "A list of comma-separated strings which indicate template files to exclude from project transpilation.",
 			"default": "ext,part"
-		}
+		},
 		{
 			"id": "jst_formats",
 			"type": "pickString",
