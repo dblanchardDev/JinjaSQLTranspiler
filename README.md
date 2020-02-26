@@ -30,11 +30,11 @@ Set the user defined options used by the transpiler. If none are specified, will
 
 | Option | Description | Default |
 |--------|-------------|---------|
-| Templates | Path† to the directory containing the project's templates. | `templates`
-| Transpiled | Path† to the directory where transpiled files will be output. | `transpiled`
-| Debug | Path† to the directory where debugging files will be output. | `debug`
+| Templates Dir | Path† to the directory containing the project's templates. | `templates`
+| Transpiled Dir | Path† to the directory where transpiled files will be output. | `transpiled`
+| Debug Dir | Path† to the directory where debugging files will be output. | `debug`
 | ANSI Nulls | Whether to explicitly enable [ANSI-NULLS](https://docs.microsoft.com/en-us/sql/t-sql/statements/set-ansi-nulls-transact-sql?view=sql-server-ver15) in programmability code. | `True`
-| Ignore | All file name prefixes which will be skipped when transpiling project (comma-separated list). | `part,ext`
+| Skip Prefixes | All file name prefixes which will be skipped when transpiling project (comma-separated list). | `part,ext`
 
 † *Paths to folders may be relative from the root of the workspace root.*
 
@@ -47,7 +47,7 @@ See [Format Templates](#format-templates) below for details on the options.
 Transpile the file that is currently open in Visual Studio Code into an easily debuggable format.
 
 ### Transpile Project
-Transpile all files found in the *templates* folder, only skipping those that are prefixed with a value from the *skipped prefixes* option (see [above](#set-options)).
+Transpile all files found in the *templates* folder, only skipping those that are prefixed with a value from the *skip prefixes* option (see [above](#set-options)).
 
 Therefore, all files except those marked to be skipped must be Jinja templates.
 

@@ -7,12 +7,12 @@
 			"command": "${config:python.pythonPath}",
 			"args": [
 				"jinjasqltranspiler\\jinjasqltranspiler.py",
-				"options",
+				"set_options",
 				"-t", "${input:jst_templates_dir}",
 				"-p", "${input:jst_transpiled_dir}",
 				"-d", "${input:jst_debug_dir}",
 				"-n", "${input:jst_ansi_nulls}",
-				"-s", "${input:jst_skipped_prefixes}"
+				"-s", "${input:jst_skip_prefixes}"
 			],
 			"presentation": {
 				"reveal": "always",
@@ -46,7 +46,7 @@
 				"transpile_file",
 				"${workspaceFolder}",
 				"${file}",
-				"DEBUG"
+				"Debug"
 			],
 			"presentation": {
 				"reveal": "always",
@@ -98,7 +98,7 @@
 			"default": "True"
 		},
 		{
-			"id": "jst_skipped_prefixes",
+			"id": "jst_skip_prefixes",
 			"type": "promptString",
 			"description": "Comma-separated list of filename prefixes to skip.",
 			"default": "ext,part"

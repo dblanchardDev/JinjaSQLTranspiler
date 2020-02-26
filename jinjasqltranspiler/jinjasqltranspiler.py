@@ -60,9 +60,9 @@ class JinjaSQLTranspiler():
 
 		# Get & save options
 		options = self.get_options()
-		self._templates_dir = self._get_abs_path(options["templates"])
-		self._transpiled_dir = self._get_abs_path(options["transpiled"])
-		self._debug_dir = self._get_abs_path(options["debug"])
+		self._templates_dir = self._get_abs_path(options["templates_dir"])
+		self._transpiled_dir = self._get_abs_path(options["transpiled_dir"])
+		self._debug_dir = self._get_abs_path(options["debug_dir"])
 		self._ansi_nulls = options["ansi_nulls"]
 		self._skip_prefixes = options["skip_prefixes"]
 
@@ -139,7 +139,7 @@ class JinjaSQLTranspiler():
 			for fn in filenames:
 
 				# If file is not to be skipped
-				if not fn.startswith(self._skip_prefixes):
+				if not fn.startswith(tuple(self._skip_prefixes)):
 
 					# Transpile the file
 					file_path = os.path.join(dirpath, fn)
@@ -307,27 +307,27 @@ def _parse_arguments():
 	subparsers = parser.add_subparsers(help="commands", dest="command")
 
 	# Command: Set Options
-	option_parser = subparsers.add_parser("options", help="Set the user defined options used by the transpiler.")
+	option_parser = subparsers.add_parser("set_options", help="Set the user defined options used by the transpiler.")
 	nulls_help = "Whether to explicitly enable ANSI Nulls in programmability code."
 
 	option_parser.add_argument("-t", dest="templates_dir", help="Path to the directory containing the project's templates.")
 	option_parser.add_argument("-p", dest="transpiled_dir", help="Path to the directory where transpiled files will be output.")
 	option_parser.add_argument("-d", dest="debug_dir", help="Path to the directory where debuging files will be output.")
 	option_parser.add_argument("-n", dest="ansi_nulls", help=nulls_help, choices=("True", "False"))
-	option_parser.add_argument("-s", dest="skipped_prefixes", help=" All file name prefixes which will be skipped when transpiling project.")
+	option_parser.add_argument("-s", dest="skip_prefixes", help=" All file name prefixes which will be skipped when transpiling project.")
 
 	# Command: Transpile File
 	transpile_file_parser = subparsers.add_parser("transpile_file", help="Process a single file through the transpiler.")
 
 	transpile_file_parser.add_argument(dest="workspace", help="The absolute path to the VS Code project workspace.")
-	transpile_file_parser.add_argument(dest="file", help="The path to the template file to be transpiled.")
-	transpile_file_parser.add_argument(dest="format", help="The format used when transpiling.", choices=("None", "Create", "Replace/Update", "Debug"))
+	transpile_file_parser.add_argument(dest="file_path", help="The path to the template file to be transpiled.")
+	transpile_file_parser.add_argument(dest="out_format", help="The format used when transpiling.", choices=("None", "Create", "Replace/Update", "Debug"))
 
 	# Command: Transpile Project
 	transpile_project_parser = subparsers.add_parser("transpile_project", help="Process the entire project through the transpiler.")
 
 	transpile_project_parser.add_argument(dest="workspace", help="The absolute path to the VS Code project workspace.")
-	transpile_project_parser.add_argument(dest="format", help="The format used when transpiling.", choices=("None", "Create", "Replace/Update", "Debug"))
+	transpile_project_parser.add_argument(dest="out_format", help="The format used when transpiling.", choices=("None", "Create", "Replace/Update", "Debug"))
 
 	# Run parser
 	return parser.parse_args()
@@ -344,7 +344,7 @@ def _main():
 	delattr(args, "command")
 
 	if command == "set_options":
-		JinjaSQLTranspiler.set_options(**args)
+		JinjaSQLTranspiler.set_options(**vars(args))
 
 	else:
 		jst = JinjaSQLTranspiler(args.workspace, args.out_format)
@@ -352,7 +352,7 @@ def _main():
 		delattr(args, "out_format")
 
 		if command == "transpile_file":
-			jst.transpile_file(**args)
+			jst.transpile_file(**vars(args))
 
 		elif command == "transpile_project":
 			jst.transpile_project()
