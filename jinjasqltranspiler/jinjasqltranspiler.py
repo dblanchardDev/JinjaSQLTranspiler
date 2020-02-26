@@ -296,7 +296,7 @@ class JinjaSQLTranspiler():
 
 
 # MAIN / ARGUMENTS ################################################################################
-def parse_arguments():
+def _parse_arguments():
 	"""Parse the arguments according to the requested command.
 
 	Returns:
@@ -326,18 +326,18 @@ def parse_arguments():
 	# Command: Transpile Project
 	transpile_project_parser = subparsers.add_parser("transpile_project", help="Process the entire project through the transpiler.")
 
-	transpile_file_parser.add_argument(dest="workspace", help="The absolute path to the VS Code project workspace.")
+	transpile_project_parser.add_argument(dest="workspace", help="The absolute path to the VS Code project workspace.")
 	transpile_project_parser.add_argument(dest="format", help="The format used when transpiling.", choices=("None", "Create", "Replace/Update", "Debug"))
 
 	# Run parser
 	return parser.parse_args()
 
 
-def main():
+def _main():
 	"""Get the parsed arguments, instantiate the transpiler and perform the requested action."""
 
 	# Get the parsed arguments
-	args = parse_arguments()
+	args = _parse_arguments()
 
 	# Call function and instantiate the transpiler if required
 	command = args.command
@@ -364,4 +364,4 @@ def main():
 
 
 if __name__ == "__main__":
-	main()
+	_main()
