@@ -8,11 +8,11 @@
 			"args": [
 				"jinjasqltranspiler\\jinjasqltranspiler.py",
 				"options",
-				"-t", "${input:jst_templates}",
-				"-p", "${input:jst_transpiled}",
-				"-d", "${input:jst_debug}",
+				"-t", "${input:jst_templates_dir}",
+				"-p", "${input:jst_transpiled_dir}",
+				"-d", "${input:jst_debug_dir}",
 				"-n", "${input:jst_ansi_nulls}",
-				"-i", "${input:jst_ignore}"
+				"-s", "${input:jst_skipped_prefixes}"
 			],
 			"presentation": {
 				"reveal": "always",
@@ -73,40 +73,40 @@
 	],
 	"inputs": [
 		{
-			"id": "jst_templates",
+			"id": "jst_templates_dir",
 			"type": "promptString",
-			"description": "Project folder containing all Jinja/SQL Templates.",
+			"description": "Path to input directory for Jinja templates.",
 			"default": "templates"
 		},
 		{
-			"id": "jst_transpiled",
+			"id": "jst_transpiled_dir",
 			"type": "promptString",
-			"description": "Output folder for transpiled SQL Files.",
+			"description": "Path to output directory for transpiled files.",
 			"default": "transpiled"
 		},
 		{
-			"id": "jst_debug",
+			"id": "jst_debug_dir",
 			"type": "promptString",
-			"description": "Output folder for transpiled SQL debugging Files.",
+			"description": "Path to output directory for debuging files.",
 			"default": "debug"
 		},
 		{
 			"id": "jst_ansi_nulls",
 			"type": "pickString",
-			"description": "Whether to explicitly set ANSI-NULLS to on for programmability code.",
+			"description": "Whether to explicitly enable ANSI-NULLS for programmability code.",
 			"options": ["True", "False"],
 			"default": "True"
 		},
 		{
-			"id": "jst_ignore",
+			"id": "jst_skipped_prefixes",
 			"type": "promptString",
-			"description": "A list of comma-separated strings which indicate template files to exclude from project transpilation.",
+			"description": "Comma-separated list of filename prefixes to skip.",
 			"default": "ext,part"
 		},
 		{
 			"id": "jst_formats",
 			"type": "pickString",
-			"description": "Output format",
+			"description": "Format used when transpiling.",
 			"options": ["Create", "Replace/Update", "None"],
 			"default": "Create"
 		}

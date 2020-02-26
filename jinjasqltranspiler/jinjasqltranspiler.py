@@ -1,9 +1,9 @@
 #! python3
 # coding: utf-8
-'''Jinja-SQL Transpiler: Automated transpiling of SQL Server code with Jinja templates into pure TSQL.
+"""Jinja-SQL Transpiler: Transpile SQL Server code written using Jinja templating into pure SQL code.
    Author: David Blanchard - Esri Canada
    Date: February 2020
-   Python: 3.8'''
+   Python: 3.8"""
 
 import argparse
 import json
@@ -13,244 +13,355 @@ from copy import copy
 
 from jinja2 import Environment, FileSystemLoader
 
-OPTION_FILE = "jinjasqltranspiler\\jst.options.json"
-OPTION_DEFAULTS = {
-	"templates": "templates",
-	"transpiled": "transpiled",
-	"debug": "debug",
-	"ansi_nulls": True,
-	"ignore": ["ext", "part"]
-}
 
+# JINJA-SQL TRANSPILER CLASS ######################################################################
+class JinjaSQLTranspiler():
+	"""Transpile SQL Server code written using Jinja templating into pure SQL code.
 
-# UTILITIES #######################################################################################
-def get_paths(file_path, workspace_path, out_format):
-	'''Derive the template path and output path from a file path'''
-	template_path = None
-	tpl_dir = get_option("templates", workspace_path)
+	Args:
+		workspace (str): The absolute path to the VS Code project workspace.
+		out_format (str): The format used when transpiling ["Create", "Replace/Update", "None"].
 
-	# Ensure file is in template folder
-	if os.path.commonpath([file_path, tpl_dir]).lower() == tpl_dir.lower():
-		template_path = os.path.relpath(file_path, tpl_dir)
+	Constants:
+		OPTION_FILE (str): The relative path to option storage file.
+		OPTION_DEFAULTS (obj: str): The default values for options, used when no file exists.
+	"""
 
-	# Otherwise, throw an error
-	else:
-		msg = "The requested file cannot be found in the templates directory. Either place the file in the templates directory or set the Jinja-SQL Transpiler options to the correct templates directory. >> {}" #pylint: disable=line-too-long
-		raise Exception(msg.format(file_path))
+	_workspace_dir = None
+	_out_format = None
 
-	# Determine the destination from the format
-	destination = None
-	if out_format == "debug":
-		destination = get_option("debug", workspace_path)
-	else:
-		destination = get_option("transpiled", workspace_path)
-
-	# Derive the output path
-	out_path = os.path.join(workspace_path, destination, template_path)
-
-	if out_path.endswith(".jinja"):
-		out_path = out_path[:-6]
-
-	return template_path, out_path
-
-
-
-# OPTIONS HANDLERS ################################################################################
-def set_options(args):
-	'''Set the transpiler options, writing them to file.'''
-	print(" ⚙ Setting options")
-
-	# Assemble the options, using defaults if None in arguments
-	options = copy(OPTION_DEFAULTS)
-	userDefined = vars(args)
-
-	for key in OPTION_DEFAULTS.keys():
-		val = userDefined[key]
-
-		if key == "ansi_nulls":
-			val = (val == "True")
-
-		if key == "ignore" and val is not None:
-			val = val.split(",")
-
-		if val is not None:
-			options[key] = val
-
-	options_json = json.dumps(options)
-
-	# Write to file
-	with open(OPTION_FILE, "w", encoding="utf-8") as optFile:
-		optFile.write(options_json)
-
-	# Output
-	print(" ✔ Options have been saved")
-
-	return
-
-
-_optionCache = None
-def get_all_options():
-	'''Get the transpiler options, using defaults if no file.'''
-	options = None
-
-	# If already cached
-	if _optionCache is not None:
-		options = _optionCache
-
-	# If a file exists, use those
-	elif os.path.isfile(OPTION_FILE):
-		with open(OPTION_FILE, "r", encoding="utf-8") as optFile:
-			options = json.loads(optFile.read())
-
-	# Otherwise, use defaults
-	else:
-		options = OPTION_DEFAULTS
-
-	return options
-
-
-def get_option(key, workspace=None):
-	'''Get a single option value'''
-	value = get_all_options()[key]
-
-	if workspace is not None and not os.path.isabs(value):
-		value = os.path.join(workspace, value)
-
-	return value
-
-
-# TRANSPILING #####################################################################################
-class Transpiler():
-	'''Transpile files from SQL-Jinja templates to a final TSQL version.'''
+	_templates_dir = None
+	_transpiled_dir = None
+	_debug_dir = None
+	_ansi_nulls = None
+	_skip_prefixes = None
 
 	_jinja = None
 
-	def __init__(self, template_dir, ansi_nulls=True):
+
+	# CONSTANTS -----------------------------------------------------------------------------------
+	OPTION_FILE = "jinjasqltranspiler\\jst.options.json"
+	OPTION_DEFAULTS = {
+		"templates_dir": "templates",
+		"transpiled_dir": "transpiled",
+		"debug_dir": "debug",
+		"ansi_nulls": True,
+		"skip_prefixes": ["ext", "part"]
+	}
+
+
+	# INSTANTIATION -------------------------------------------------------------------------------
+	def __init__(self, workspace, out_format):
+		print("======== Jinja-SQL Transpiler =========")
+
+		# Save init parameters
+		self._workspace_dir = workspace
+		self._out_format = out_format
+
+		# Get & save options
+		options = self.get_options()
+		self._templates_dir = self._get_abs_path(options["templates"])
+		self._transpiled_dir = self._get_abs_path(options["transpiled"])
+		self._debug_dir = self._get_abs_path(options["debug"])
+		self._ansi_nulls = options["ansi_nulls"]
+		self._skip_prefixes = options["skip_prefixes"]
 
 		# Build Jinja Environment
 		self._jinja = Environment(
-			loader=FileSystemLoader(template_dir),
+			loader=FileSystemLoader(self._templates_dir),
 			autoescape=False,
 			trim_blocks=True,
 			lstrip_blocks=True
 		)
 
-		# Custom Jinja Globals
-		self._jinja.globals["ansi_nulls"] = ansi_nulls
-
-		return
+		# return
 
 
+	# TRANSPILING ---------------------------------------------------------------------------------
+	def _transpile(self, template_path, out_path):
+		"""Do the actual transpiling of a SQL file with Jinja templates into a pure SQL file.
 
-	def transpile(self, template_path, out_path, out_format="CREATE"):
-		'''Transpile a single SQL/Jinja file into a TSQL file'''
+		Args:
+			template_path (str): The path to the template file, relative to the template directory.
+			out_path (str): The absolute path to which the transpiled file is to be written.
+		"""
 
-		# Render the template
+		# Get and render the template
 		template_path = template_path.replace("\\", "/")
 		template = self._jinja.get_template(template_path)
 
-		sql = template.render({
-			"out_format": out_format
+		rendered = template.render({
+			"out_format": self._out_format,
+			"ansi_nulls": self._ansi_nulls
 		})
 
 		# Write the template to file
 		pathlib.Path(os.path.dirname(out_path)).mkdir(parents=True, exist_ok=True)
-		with open(out_path, "w", encoding="utf-8") as sqlFile:
-			sqlFile.write(sql)
+
+		with open(out_path, "w", encoding="utf-8") as openFile:
+			openFile.write(rendered)
 
 		return
 
 
+	def transpile_file(self, file_path):
+		"""Process a single file through the transpiler.
 
-def transpile_file(args):
-	'''Send a single file for transpiling.'''
-	print(" 🗃 Transpiling file")
+		Args:
+			file_path (str): The relative (to the workspace) or absolute path to the template file
+				to be transpiled. This file must be located in the template directory.
+		"""
 
-	template_path, out_path = get_paths(args.file, args.workspace, args.format)
+		# Starting message
+		print(" 🗃 Transpiling file")
 
-	# Transpile the file
-	tpl_folder = get_option("templates", args.workspace)
-	transpiler = Transpiler(tpl_folder, get_option("ansi_nulls"))
-	transpiler.transpile(template_path, out_path, args.format)
+		# Transpile the file
+		template_path, out_path = self._derive_paths(file_path)
+		self._transpile(template_path, out_path)
 
-	# Output message
-	rel_path = os.path.relpath(out_path, args.workspace)
-	print(" ✔ File transpiled to: {}".format(rel_path))
+		# Completed message
+		rel_path = os.path.relpath(out_path, self._workspace_dir)
+		print(" ✔ File transpiled to: {}".format(rel_path))
 
-	return
-
+		return
 
 
-def transpile_project(args):
-	'''Send the whole project to be transpiled.'''
-	print(" 🗃 Transpiling project")
+	def transpile_project(self):
+		"""Process the entire project through the transpiler. Will include all files in the
+		template directory which do not match a skipped prefix.
+		"""
 
-	ignore = tuple(get_option("ignore"))
-	tpl_dir = get_option("templates", args.workspace)
+		# Starting message
+		print(" 🗃 Transpiling project")
 
-	transpiler = Transpiler(tpl_dir, get_option("ansi_nulls"))
+		# Loop through all files in the template directory
+		for (dirpath, dirnames, filenames) in os.walk(self._templates_dir): #pylint: disable=unused-variable
+			for fn in filenames:
 
-	# Loop through all files in the template directory
-	tpl = get_option("templates", args.workspace)
+				# If file is not to be skipped
+				if not fn.startswith(self._skip_prefixes):
 
-	for (dirpath, dirnames, filenames) in os.walk(tpl): #pylint: disable=unused-variable
-		for fn in filenames:
-			if not fn.startswith(ignore):
-				file_path = os.path.join(dirpath, fn)
-				template_path, out_path = get_paths(file_path, args.workspace, args.format)
-				transpiler.transpile(template_path, out_path, args.format)
+					# Transpile the file
+					file_path = os.path.join(dirpath, fn)
+					template_path, out_path = self._derive_paths(file_path)
 
-	# Output message
-	transpiled = get_option("transpiled", args.workspace)
-	rel_path = os.path.relpath(transpiled, args.workspace)
-	print(" ✔ Files transpiled to: {}".format(rel_path))
-	return
+					self._transpile(template_path, out_path)
 
+
+		# Completed message
+		print(" ✔ Files transpiled to: {}".format(self._transpiled_dir))
+
+		return
+
+
+	# OPTIONS -------------------------------------------------------------------------------------
+	@staticmethod
+	def set_options(templates_dir=None, transpiled_dir=None, debug_dir=None, ansi_nulls=None, skip_prefixes=None):
+		"""Set the user defined options used by the transpiler.
+
+		Args:
+			templates_dir (str, optional): Path† to the directory containing the project's templates.
+			transpiled_dir (str, optional): Path† to the directory where transpiled files will be output.
+			debug_dir (str, optional): Path† to the directory where debuging files will be output.
+			ansi_nulls (bool, optional): Whether to explicitly enable ANSI Nulls in programmability code.
+			skip_prefixes (list: str, optional): All file name prefixes which will be skipped when transpiling project.
+
+		† Path can be absolute or relative to the VS Code workspace.
+		(Default values defined in DEFAULT_OPTIONS)
+		"""
+
+		# Starting message
+		print(" ⚙ Setting options")
+
+		# Assemble the options, using defaults if None in arguments
+		options = copy(JinjaSQLTranspiler.OPTION_DEFAULTS)
+
+		if templates_dir is not None:
+			options["templates_dir"] = templates_dir
+
+		if transpiled_dir is not None:
+			options["transpiled_dir"] = transpiled_dir
+
+		if debug_dir is not None:
+			options["debug_dir"] = debug_dir
+
+		if ansi_nulls is not None:
+			options["ansi_nulls"] = ansi_nulls == "True"
+
+		if skip_prefixes is not None:
+			options["skip_prefixes"] = skip_prefixes.split(",")
+
+		# Write to file
+		options_json = json.dumps(options)
+		with open(JinjaSQLTranspiler.OPTION_FILE, "w", encoding="utf-8") as optFile:
+			optFile.write(options_json)
+
+		# Completed Message
+		print(" ✔ Options have been saved")
+
+		return
+
+
+	def get_options(self):
+		"""Get the transpiler options, using defaults is no user defined options are set.
+
+		Returns:
+			(obj): {
+				templates_dir (str): Path† to the directory containing the project's templates,
+				transpiled_dir (str): Path† to the directory where transpiled files will be output,
+				debug_dir (str): Path† to the directory where debuging files will be output,
+				ansi_nulls (bool): Whether to explicitly enable ANSI Nulls in programmability code,
+				skip_prefixes (list: str): All file name prefixes which will be skipped when transpiling project,
+			}
+
+		† Path may be absolute or relative to VS Code workspace.
+		"""
+		options = None
+
+		# If a file exists, use those
+		if os.path.isfile(self.OPTION_FILE):
+			with open(self.OPTION_FILE, "r", encoding="utf-8") as optFile:
+				options = json.loads(optFile.read())
+
+		# Otherwise, use defaults
+		else:
+			options = self.OPTION_DEFAULTS
+
+		return options
+
+
+	# UTILITIES -----------------------------------------------------------------------------------
+	def _get_abs_path(self, path):
+		"""Return the absolute path, using the VS Code workspace as the root.
+
+		Args:
+			path (str): The path to be made absolute (if already absolute, returned unchanged).
+
+		Returns:
+			(str): The absolute path derived from the relative path.
+		"""
+
+		resolved = None
+
+		if not os.path.isabs(path):
+			resolved = os.path.join(self._workspace_dir, path)
+
+		else:
+			resolved = path
+
+		return resolved
+
+
+	def _derive_paths(self, file_path):
+		"""Derive the template path and output path from a file path.
+
+		Args:
+			file_path (str): The relative (to the workspace) path to the template file
+				to be transpiled. This file must be located in the template directory.
+
+		Returns:
+			(str): The relative path to the template from the templates directory.
+			(str): The absolute path to which the transpiled file is to be written.
+		"""
+		template_path = None
+
+		# Ensure file is in template folder
+		common = os.path.commonpath([file_path, self._templates_dir])
+		if common.lower() == self._templates_dir.lower():
+
+			# Get relative path to file starting at templates directory
+			template_path = os.path.relpath(file_path, self._templates_dir)
+
+
+		# Otherwise, throw an error
+		else:
+			raise Exception("The file could not be found in the templates directory: {}".format(file_path))
+
+
+		# Determine the destination directory
+		destination = None
+		if self._out_format == "debug":
+			destination = self._debug_dir
+
+		else:
+			destination = self._transpiled_dir
+
+		# Derive the output path
+		out_path = os.path.join(self._workspace_dir, destination, template_path)
+
+		if out_path.endswith(".jinja"):
+			out_path = out_path[:-6]
+
+		return template_path, out_path
 
 
 # MAIN / ARGUMENTS ################################################################################
-def main():
-	'''Parse arguments and call the corresponding function.'''
+def parse_arguments():
+	"""Parse the arguments according to the requested command.
 
-	print("======== Jinja-SQL Transpiler =========")
+	Returns:
+		(namespace): Parsed arguments namespace.
+	"""
+
 	parser = argparse.ArgumentParser()
-	subparsers = parser.add_subparsers(help="commands")
+	subparsers = parser.add_subparsers(help="commands", dest="command")
 
-	# Set Options
-	option_parser = subparsers.add_parser("options", help="Setup transpile options")
-	nulls_help = "Whether to explicitly set ANSI-NULLS to on for programmability code."
+	# Command: Set Options
+	option_parser = subparsers.add_parser("options", help="Set the user defined options used by the transpiler.")
+	nulls_help = "Whether to explicitly enable ANSI Nulls in programmability code."
 
-	option_parser.add_argument("-t", dest="templates", help="Project folder containing all Jinja/SQL Templates.")
-	option_parser.add_argument("-p", dest="transpiled", help="Output folder for transpiled SQL Files.")
-	option_parser.add_argument("-d", dest="debug", help="Output folder for transpiled SQL debugging Files.")
+	option_parser.add_argument("-t", dest="templates_dir", help="Path to the directory containing the project's templates.")
+	option_parser.add_argument("-p", dest="transpiled_dir", help="Path to the directory where transpiled files will be output.")
+	option_parser.add_argument("-d", dest="debug_dir", help="Path to the directory where debuging files will be output.")
 	option_parser.add_argument("-n", dest="ansi_nulls", help=nulls_help, choices=("True", "False"))
-	option_parser.add_argument("-i", dest="ignore", help="Filename prefixes to ignore when transpiling project (comma-separated).")
+	option_parser.add_argument("-s", dest="skipped_prefixes", help=" All file name prefixes which will be skipped when transpiling project.")
 
-	option_parser.set_defaults(func=set_options)
+	# Command: Transpile File
+	transpile_file_parser = subparsers.add_parser("transpile_file", help="Process a single file through the transpiler.")
 
-	# Transpile File
-	transpile_file_parser = subparsers.add_parser("transpile_file", help="Transpile a single file")
+	transpile_file_parser.add_argument(dest="workspace", help="The absolute path to the VS Code project workspace.")
+	transpile_file_parser.add_argument(dest="file", help="The path to the template file to be transpiled.")
+	transpile_file_parser.add_argument(dest="format", help="The format used when transpiling.", choices=("None", "Create", "Replace/Update", "Debug"))
 
-	transpile_file_parser.add_argument(dest="workspace", help="The project's current workspace.")
-	transpile_file_parser.add_argument(dest="file", help="Path to the Jinja template to be transpiled.")
-	transpile_file_parser.add_argument(dest="format", help="The format of the transpiled file.", choices=("None", "Create", "Replace/Update", "Debug"))
+	# Command: Transpile Project
+	transpile_project_parser = subparsers.add_parser("transpile_project", help="Process the entire project through the transpiler.")
 
-	transpile_file_parser.set_defaults(func=transpile_file)
-
-	# Transpile Project
-	transpile_project_parser = subparsers.add_parser("transpile_project", help="Transpile the whole project")
-
-	transpile_file_parser.add_argument(dest="workspace", help="The project's current workspace.")
-	transpile_project_parser.add_argument(dest="format", help="The format of the transpiled file.", choices=("None", "Create", "Replace/Update", "Debug"))
-
-	transpile_project_parser.set_defaults(func=transpile_project)
+	transpile_file_parser.add_argument(dest="workspace", help="The absolute path to the VS Code project workspace.")
+	transpile_project_parser.add_argument(dest="format", help="The format used when transpiling.", choices=("None", "Create", "Replace/Update", "Debug"))
 
 	# Run parser
-	args = parser.parse_args()
-	args.func(args)
+	return parser.parse_args()
 
-	print("=======================================")
+
+def main():
+	"""Get the parsed arguments, instantiate the transpiler and perform the requested action."""
+
+	# Get the parsed arguments
+	args = parse_arguments()
+
+	# Call function and instantiate the transpiler if required
+	command = args.command
+	delattr(args, "command")
+
+	if command == "set_options":
+		JinjaSQLTranspiler.set_options(**args)
+
+	else:
+		jst = JinjaSQLTranspiler(args.workspace, args.out_format)
+		delattr(args, "workspace")
+		delattr(args, "out_format")
+
+		if command == "transpile_file":
+			jst.transpile_file(**args)
+
+		elif command == "transpile_project":
+			jst.transpile_project()
+
+		else:
+			raise Exception("The command '{}' is not recognized.".format(command))
+
 	return
+
 
 if __name__ == "__main__":
 	main()
