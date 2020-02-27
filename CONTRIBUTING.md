@@ -1,3 +1,4 @@
+# Contributing to Jinja-SQL Transpiler
 
 ## Issues
 
