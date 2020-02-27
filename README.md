@@ -77,3 +77,13 @@ Details on the arguments and commands can be obtained via command line help as f
 ```
 > python jinjasqltranspiler.py -h
 ```
+
+---
+
+## Licensing & Support
+
+Copyright 2020 Esri Canada - All Rights Reserved
+
+A copy of the license is available in the repository's [LICENSE](../master/LICENSE) file.
+
+This code is distributed as is and is not supported in any way by Esri Canada, Esri Inc. or any other Esri distributor.

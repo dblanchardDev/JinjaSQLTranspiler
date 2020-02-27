@@ -3,7 +3,10 @@
 """Jinja-SQL Transpiler: Transpile SQL Server code written using Jinja templating into pure SQL code.
    Author: David Blanchard - Esri Canada
    Date: February 2020
-   Python: 3.8"""
+   Python: 3.8
+
+   Copyright 2020 Esri Canada - All Rights Reserved
+   Released under the MIT license. See LICENSE file for details"""
 
 import argparse
 import ctypes
