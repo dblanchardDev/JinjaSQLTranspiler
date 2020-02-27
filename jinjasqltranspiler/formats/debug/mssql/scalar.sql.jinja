@@ -1,0 +1,38 @@
+{# EXTRACT BLOCK VALUES #}
+{% set comments %}{% block comments %}{% endblock %}{% endset %}
+{% set name %}{% block name %}{% endblock %}{% endset %}
+{% set parameters %}{% block parameters %}{% endblock %}{% endset %}
+{% set data_type %}{% block data_type %}{% endblock %}{% endset %}
+{% set logic %}{% block logic %}{% endblock %}{% endset -%}
+
+{# COMMENTS #}
+{% if comments %}
+{{ comments }}
+{% endif -%}
+
+{# SET ANSI NULLS #}
+{% if ansi_nulls %}SET ANSI_NULLS ON;
+GO
+
+{% endif -%}
+
+{# DECLARE PARAMETERS #}
+{% if parameters -%}
+-- PARAMETERS =================================================================
+DECLARE
+	{% for param in parameters.split(",") %}
+	{{ param|trim }} = {{ param|columntovalue }}
+		{%- if loop.last %};{% else %},
+		{% endif %}
+	{% endfor %}
+{% endif %}
+
+
+-- LOGIC ======================================================================
+{% set logic_trimmed %}{{ logic|trim }}{% endset %}
+	{%+ for line in logic_trimmed.split("\n") %}
+		{% if loop.last %}{{ line|replace("RETURN", "SELECT") }}{% else %}{{ line }}{% endif %}
+
+	{% endfor %}
+
+GO

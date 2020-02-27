@@ -1,0 +1,13 @@
+{# EXTRACT BLOCK VALUES #}
+{% set comments %}{% block comments %}{% endblock %}{% endset %}
+{% set name %}{% block name %}{% endblock %}{% endset %}
+{% set columns %}{% block columns %}{% endblock %}{% endset -%}
+
+{# COMMENTS #}
+{% if comments %}
+{{ comments }}
+{% endif -%}
+
+{# CREATE TABLE #}
+CREATE TABLE {{ name|trim }} (
+{{ columns }});

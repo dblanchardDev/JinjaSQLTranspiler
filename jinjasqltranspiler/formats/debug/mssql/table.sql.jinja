@@ -1,0 +1,32 @@
+{# EXTRACT BLOCK VALUES #}
+{% set comments %}{% block comments %}{% endblock %}{% endset %}
+{% set name %}{% block name %}{% endblock %}{% endset %}
+{% set columns %}{% block columns %}{% endblock %}{% endset -%}
+
+-- **TABLE DEBUGGING**
+-- {{ name|trim }}
+
+{# COMMENTS #}
+{% if comments %}
+{{ comments }}
+{% endif -%}
+
+-- CREATE TEMP TABLE
+CREATE TABLE #{{ name.split(".")[-1] }} (
+	{% for col in columns.split(",") %}
+	{{ col|trim }},
+	{% endfor %}
+);
+
+-- INSERT DUMMY ROW
+INSERT INTO #{{ name.split(".")[-1] }}
+VALUES (
+{% for col in columns.split(",") %}
+	{{ col|columntovalue }}{% if loop.last %}{% else %},{% endif %}
+
+{% endfor -%}
+);
+
+-- SELECT TEMP TABLE
+SELECT *
+FROM #{{ name.split(".")[-1] }};

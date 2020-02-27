@@ -6,6 +6,7 @@
    Python: 3.8"""
 
 import argparse
+import ctypes
 import json
 import os
 import pathlib
@@ -74,6 +75,9 @@ class JinjaSQLTranspiler():
 			lstrip_blocks=True
 		)
 
+		# Custom Filters
+		self._jinja.filters["columntovalue"] = self._columnToValue
+
 		# return
 
 
@@ -86,20 +90,36 @@ class JinjaSQLTranspiler():
 			out_path (str): The absolute path to which the transpiled file is to be written.
 		"""
 
-		# Get and render the template
-		template_path = template_path.replace("\\", "/")
-		template = self._jinja.get_template(template_path)
+		# Create a symbolic link to bring in format templates
+		link = os.path.join(self._templates_dir, "jst")
+		if self._out_format in ["Create", "Replace/Update", "Debug"]:
+			if self._is_admin:
+				dirName = self._out_format.lower().replace("/", "_")
+				source = os.path.join(self._workspace_dir, "jinjasqltranspiler/formats", dirName)
+				os.symlink(source, link, True)
+			else:
+				raise Exception("\n\n✖ When requesting a format template such as Create, Replace/Update, or Debug, the process must be run as an administrator.\n")
 
-		rendered = template.render({
-			"out_format": self._out_format,
-			"ansi_nulls": self._ansi_nulls
-		})
+		try:
+			# Get and render the template
+			template_path = template_path.replace("\\", "/")
+			template = self._jinja.get_template(template_path)
 
-		# Write the template to file
-		pathlib.Path(os.path.dirname(out_path)).mkdir(parents=True, exist_ok=True)
+			rendered = template.render({
+				"out_format": self._out_format,
+				"ansi_nulls": self._ansi_nulls
+			})
 
-		with open(out_path, "w", encoding="utf-8") as openFile:
-			openFile.write(rendered)
+			# Write the template to file
+			pathlib.Path(os.path.dirname(out_path)).mkdir(parents=True, exist_ok=True)
+
+			with open(out_path, "w", encoding="utf-8") as openFile:
+				openFile.write(rendered)
+
+		finally:
+			# Remove the symbolic link from format templates
+			if os.path.islink(link):
+				os.unlink(link)
 
 		return
 
@@ -275,7 +295,7 @@ class JinjaSQLTranspiler():
 
 		# Otherwise, throw an error
 		else:
-			raise Exception("The file could not be found in the templates directory: {}".format(file_path))
+			raise Exception("\n\n✖ The file could not be found in the templates directory: {}\n".format(file_path))
 
 
 		# Determine the destination directory
@@ -293,6 +313,75 @@ class JinjaSQLTranspiler():
 			out_path = out_path[:-6]
 
 		return template_path, out_path
+
+
+	@property
+	def _is_admin(self):
+		"""Whether the process is being run as an administrator."""
+		is_admin = None
+
+		try:
+			is_admin = os.getuid() == 0
+		except AttributeError:
+			is_admin = ctypes.windll.shell32.IsUserAnAdmin() != 0
+
+		return is_admin
+
+
+	def _columnToValue(self, definition):
+		"""Return a value that is suitable for the defined column.
+
+		Args:
+			definition (string): The column definition from the SQL code.
+
+		Returns:
+			(str): Value that fits the SQL insert requirements for that column.
+		"""
+
+		definition = definition.lower()
+
+		value = "NULL"
+
+		if "bingint" in definition:
+			value = "6223372036854775807"
+		elif "int" in definition:
+			value = "845655"
+		elif "smallint" in definition:
+			value = "2515"
+		elif "tinyint" in definition:
+			value = "12"
+		elif "bit" in definition:
+			value = "1"
+		elif "decimal" in definition:
+			value = "1.2"
+		elif "numeric" in definition:
+			value = "1.2"
+		elif "money" in definition:
+			value = "158.25"
+		elif "smallmoney" in definition:
+			value = "5.12"
+		elif "float" in definition:
+			value = "9.85"
+		elif "real" in definition:
+			value = "9.85"
+		elif "smalldatetime" in definition:
+			value = "'2020-01-01 11:45'"
+		elif "datetime" in definition:
+			value = "'2020-01-01 11:45:54'"
+		elif "nvarchar" in definition:
+			value = "N'ABC'"
+		elif "varchar" in definition:
+			value = "'ABC'"
+		elif "nchar" in definition:
+			value = "N'A'"
+		elif "char" in definition:
+			value = "'A'"
+		elif "ntext" in definition:
+			value = "N'ABC'"
+		elif "text" in definition:
+			value = "'ABC'"
+
+		return value
 
 
 # MAIN / ARGUMENTS ################################################################################

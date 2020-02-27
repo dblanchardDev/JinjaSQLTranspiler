@@ -1,0 +1,36 @@
+{# EXTRACT BLOCK VALUES #}
+{% set comments %}{% block comments %}{% endblock %}{% endset %}
+{% set name %}{% block name %}{% endblock %}{% endset %}
+{% set parameters %}{% block parameters %}{% endblock %}{% endset %}
+{% set select %}{% block select %}{% endblock %}{% endset -%}
+
+-- **TABLE-VALUED FUNCTION DEBUGGING**
+-- {{ name|trim }}
+
+{# COMMENTS #}
+{% if comments %}
+{{ comments }}
+{% endif -%}
+
+{# SET ANSI NULLS #}
+{% if ansi_nulls %}SET ANSI_NULLS ON;
+GO
+
+{% endif -%}
+
+{# DECLARE PARAMETERS #}
+{% if parameters -%}
+-- PARAMETERS =================================================================
+DECLARE
+	{% for param in parameters.split(",") %}
+	{{ param|trim }} = {{ param|columntovalue }}
+		{%- if loop.last %};{% else %},
+		{% endif %}
+	{% endfor %}
+{% endif %}
+
+
+-- LOGIC ======================================================================
+	{{ select|trim }}
+
+GO

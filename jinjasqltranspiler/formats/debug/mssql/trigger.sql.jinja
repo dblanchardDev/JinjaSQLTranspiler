@@ -1,0 +1,40 @@
+{# EXTRACT BLOCK VALUES #}
+{% set comments %}{% block comments %}{% endblock %}{% endset %}
+{% set name %}{% block name %}{% endblock %}{% endset %}
+{% set table %}{% block table %}{% endblock %}{% endset %}
+{% set activated %}{% block activated %}{% endblock %}{% endset %}
+{% set logic %}{% block logic %}{% endblock %}{% endset -%}
+
+-- **TRIGGER DEBUGGING**
+-- {{ name|trim }}
+-- AFTER {{ activated|upper }}
+-- ON {{ table|trim }}
+
+{# COMMENTS #}
+{% if comments %}
+{{ comments }}
+{% endif -%}
+
+{# SET ANSI NULLS #}
+{% if ansi_nulls %}SET ANSI_NULLS ON;
+GO
+
+{% endif -%}
+
+-- FAKE TRIGGER CHANGE TABLES =================================================
+INSERT #inserted
+	SELECT TOP 1 *
+	FROM {{ table|trim }};
+
+INSERT #updated
+	SELECT TOP 1 *
+	FROM {{ table|trim }};
+
+INSERT #deleted
+	SELECT TOP 1 *
+	FROM {{ table|trim }};
+
+-- LOGIC ======================================================================
+	{{ logic|trim|replace("inserted", "#inserted")|replace("updated", "#updated")|replace("deleted", "#deleted") }}
+
+GO

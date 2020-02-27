@@ -107,8 +107,8 @@
 			"id": "jst_formats",
 			"type": "pickString",
 			"description": "Format used when transpiling.",
-			"options": ["Create", "Replace/Update", "None"],
-			"default": "Create"
+			"options": ["None", "Create", "Replace/Update"],
+			"default": "None"
 		}
 	]
 }

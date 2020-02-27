@@ -1,0 +1,28 @@
+{# EXTRACT BLOCK VALUES #}
+{% set comments %}{% block comments %}{% endblock %}{% endset %}
+{% set name %}{% block name %}{% endblock %}{% endset %}
+{% set parameters %}{% block parameters %}{% endblock %}{% endset %}
+{% set logic %}{% block logic %}{% endblock %}{% endset -%}
+
+{# COMMENTS #}
+{% if comments %}
+{{ comments }}
+{% endif -%}
+
+{# SET ANSI NULLS #}
+{% if ansi_nulls %}SET ANSI_NULLS ON;
+GO
+
+{% endif -%}
+
+{# CREATE PROCEDURE #}
+CREATE PROCEDURE {{ name|trim }}{% if parameters %}(
+{{ parameters }}
+){% endif %} AS
+BEGIN
+	SET NOCOUNT ON;
+
+	{{ logic|trim }}
+
+END;
+GO
