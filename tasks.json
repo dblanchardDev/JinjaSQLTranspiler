@@ -87,7 +87,7 @@
 		{
 			"id": "jst_debug_dir",
 			"type": "promptString",
-			"description": "Path to output directory for debuging files.",
+			"description": "Path to output directory for debugging files.",
 			"default": "debug"
 		},
 		{

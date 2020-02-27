@@ -4,7 +4,7 @@
 Using a format template when writing the code for a database item allows for easy transition between various types of versions of the transpiled output: creation, replacing/altering, and debugging.
 
 ## Extending a Format Template
-In order fo the Jinja-SQL Transpiler to know what format template to use, add an [extend](https://jinja.palletsprojects.com/en/2.11.x/templates/#child-template) statement to the top of your file.
+In order for the Jinja-SQL Transpiler to know what format template to use, add an [extend](https://jinja.palletsprojects.com/en/2.11.x/templates/#child-template) statement to the top of your file.
 
 The statement is written as
 ```jinja
@@ -15,7 +15,7 @@ where `<db_key>` is replaced with a key for the [Database Engine](#database-engi
 For example, when creating a table in Microsoft SQL Server, use
 
 ## Adding Code Blocks
-In order to modify the code from one format to another, the Jinja-SQL Transpiler must be able to find the relevant parts of the code. This is accomplished by surounding relevant code with  [Jinja Blocks](https://jinja.palletsprojects.com/en/2.11.x/templates/#base-template).
+In order to modify the code from one format to another, the Jinja-SQL Transpiler must be able to find the relevant parts of the code. This is accomplished by surrounding relevant code with  [Jinja Blocks](https://jinja.palletsprojects.com/en/2.11.x/templates/#base-template).
 
 For example, when creating a table, the transpiler needs to know the **name** and the **columns**:
 ```sql
@@ -84,7 +84,7 @@ The following code blocks are available for each of the above listed items.
 | Block             | MSSQL    | Description
 |-------------------|----------|-------------
 | `comments`        | Optional | Comments to be placed at the top of the file.
-| `name`            | Required | The functions's name (and schema).
+| `name`            | Required | The function's name (and schema).
 | `parameters`      | Optional | The comma-separated list of input parameters.
 | `select`          | Required | The select statement which returns the table.
 
@@ -92,7 +92,7 @@ The following code blocks are available for each of the above listed items.
 | Block             | MSSQL    | Description
 |-------------------|----------|-------------
 | `comments`        | Optional | Comments to be placed at the top of the file.
-| `name`            | Required | The functions's name (and schema).
+| `name`            | Required | The function's name (and schema).
 | `parameters`      | Optional | The comma-separated list of input parameters.
 | `data_type`       | Required | The data-type that is returned.
 | `parameters`      | Optional | The comma-separated list of input parameters.
@@ -103,7 +103,7 @@ The following code blocks are available for each of the above listed items.
 | Block             | MSSQL    | Description
 |-------------------|----------|-------------
 | `comments`        | Optional | Comments to be placed at the top of the file.
-| `name`            | Required | The triggers's name (and schema).
+| `name`            | Required | The trigger's name (and schema).
 | `table`           | Required | The table (and schema) on which the trigger will fire.
 | `activated`       | Required | The comma-separated list of actions on which the trigger will be activated.
 | `logic`           | Required | The body of the trigger.
