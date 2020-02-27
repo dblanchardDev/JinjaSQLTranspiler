@@ -33,7 +33,7 @@ CREATE TABLE {% block name %} my_schema.Vehicles {% endblock %} (
 ## Database Engines
 Each database engine may vary slightly in how they require items to be defined.
 
-> If your database engine is not available, you may define your own format templates.
+> If your database engine is not available, you may [define your own format templates](#writing-new-format-templates).
 
 | Database Engine            | Key     |
 |----------------------------|---------|
@@ -277,3 +277,11 @@ AS
 
 	{% endblock %}
 ```
+
+---
+
+## Writing New Format Templates
+
+Format templates are in the *jinjasqltranspiller/formats* folder and are organized in subfolders, first by action (create, replace, debug) and then by database engine (e.g. `mssql`).
+
+If you need to create code for a different database engine, create a new folder for that database engine in all 3 action folders and add your format templates in those folders.

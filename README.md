@@ -10,8 +10,6 @@ In addition, Jinja-SQL Transpiler will need to know which Python executable to u
 
 > The alternative to using the Microsoft Python extension is to replace all instances of `${config:python.pythonPath}` in the task file with the path to the Python executable.
 
----
-
 ## Setup
 1. Copy the *jinjasqltranspiler* folder into your project.
 2. Copy the *task.json* file into your project's *.vscode* folder. If the folder does not exist, create it. If the *task.json* file already exists, you will need to merge the 2 JSON files if you want to keep existing tasks.
@@ -80,10 +78,24 @@ Details on the arguments and commands can be obtained via command line help as f
 
 ---
 
-## Licensing & Support
+## Licensing
 
 Copyright 2020 Esri Canada - All Rights Reserved
 
 A copy of the license is available in the repository's [LICENSE](../master/LICENSE) file.
 
+## Support
+
 This code is distributed as is and is not supported in any way by Esri Canada, Esri Inc. or any other Esri distributor.
+
+## Issues
+
+Found a bug? Please let us know by submitting an issue.
+
+## Contributing
+
+We do not require you to assign the copyright of your contributions, you retain the copyright. We do however require that you make your contributions available under the MIT license in order to be included in the main repo.
+
+If you are adding a new file that you wrote, include your name in the copyright notice at the top of the file.
+
+Please do not contribute code you did not write yourself, unless you are certain you have the legal ability to do so. Also ensure all code contributed can be licensed under the MIT license.
