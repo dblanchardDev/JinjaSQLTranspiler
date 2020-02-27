@@ -8,9 +8,17 @@
 {{ comments }}
 {% endif -%}
 
+{# SET ANSI NULLS #}
+{% if ansi_nulls %}SET ANSI_NULLS ON;
+GO
+
+{% endif -%}
+
 {# DROP TABLE #}
 DROP TABLE {{ name|trim }};
 
 {# CREATE TABLE #}
 CREATE TABLE {{ name|trim }} (
-{{ columns }});
+	{{ columns|trim }});
+
+GO

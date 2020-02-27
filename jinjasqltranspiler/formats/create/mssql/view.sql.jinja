@@ -8,5 +8,13 @@
 {{ comments }}
 {% endif -%}
 
+{# SET ANSI NULLS #}
+{% if ansi_nulls %}SET ANSI_NULLS ON;
+GO
+
+{% endif -%}
+
 CREATE VIEW {{ name|trim }} AS
-{{ select }}
+	{{ select|trim }}
+
+GO

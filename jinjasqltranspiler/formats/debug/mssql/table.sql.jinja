@@ -11,6 +11,12 @@
 {{ comments }}
 {% endif -%}
 
+{# SET ANSI NULLS #}
+{% if ansi_nulls %}SET ANSI_NULLS ON;
+GO
+
+{% endif -%}
+
 -- CREATE TEMP TABLE
 CREATE TABLE #{{ name.split(".")[-1] }} (
 	{% for col in columns.split(",") %}
@@ -30,3 +36,5 @@ VALUES (
 -- SELECT TEMP TABLE
 SELECT *
 FROM #{{ name.split(".")[-1] }};
+
+GO
