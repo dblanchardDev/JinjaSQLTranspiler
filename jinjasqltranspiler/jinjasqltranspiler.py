@@ -300,7 +300,7 @@ class JinjaSQLTranspiler():
 
 		# Determine the destination directory
 		destination = None
-		if self._out_format == "debug":
+		if self._out_format == "Debug":
 			destination = self._debug_dir
 
 		else:
