@@ -61,7 +61,7 @@ _**Not yet implemented**_
 | Format | Description |
 |--------|-------------|
 | Create | … |
-| Replace/Update | … |
+| Replace | … |
 | None | … |
 
 ---

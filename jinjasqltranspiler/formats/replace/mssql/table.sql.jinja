@@ -8,9 +8,8 @@
 {{ comments }}
 {% endif -%}
 
-{# DROP TABLE IF EXISTS #}
-IF OBJECT_ID('{{ name|trim }}', 'U') IS NOT NULL
-	DROP TABLE {{ name|trim }};
+{# DROP TABLE #}
+DROP TABLE {{ name|trim }};
 
 {# CREATE TABLE #}
 CREATE TABLE {{ name|trim }} (

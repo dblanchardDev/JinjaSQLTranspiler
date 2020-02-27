@@ -21,7 +21,7 @@ class JinjaSQLTranspiler():
 
 	Args:
 		workspace (str): The absolute path to the VS Code project workspace.
-		out_format (str): The format used when transpiling ["Create", "Replace/Update", "None"].
+		out_format (str): The format used when transpiling ["Create", "Replace", "None"].
 
 	Constants:
 		OPTION_FILE (str): The relative path to option storage file.
@@ -92,13 +92,13 @@ class JinjaSQLTranspiler():
 
 		# Create a symbolic link to bring in format templates
 		link = os.path.join(self._templates_dir, "jst")
-		if self._out_format in ["Create", "Replace/Update", "Debug"]:
+		if self._out_format in ["Create", "Replace", "Debug"]:
 			if self._is_admin:
 				dirName = self._out_format.lower().replace("/", "_")
 				source = os.path.join(self._workspace_dir, "jinjasqltranspiler/formats", dirName)
 				os.symlink(source, link, True)
 			else:
-				raise Exception("\n\n✖ When requesting a format template such as Create, Replace/Update, or Debug, the process must be run as an administrator.\n")
+				raise Exception("\n\n✖ When requesting a format template such as Create, Replace, or Debug, the process must be run as an administrator.\n")
 
 		try:
 			# Get and render the template
@@ -410,13 +410,13 @@ def _parse_arguments():
 
 	transpile_file_parser.add_argument(dest="workspace", help="The absolute path to the VS Code project workspace.")
 	transpile_file_parser.add_argument(dest="file_path", help="The path to the template file to be transpiled.")
-	transpile_file_parser.add_argument(dest="out_format", help="The format used when transpiling.", choices=("None", "Create", "Replace/Update", "Debug"))
+	transpile_file_parser.add_argument(dest="out_format", help="The format used when transpiling.", choices=("None", "Create", "Replace", "Debug"))
 
 	# Command: Transpile Project
 	transpile_project_parser = subparsers.add_parser("transpile_project", help="Process the entire project through the transpiler.")
 
 	transpile_project_parser.add_argument(dest="workspace", help="The absolute path to the VS Code project workspace.")
-	transpile_project_parser.add_argument(dest="out_format", help="The format used when transpiling.", choices=("None", "Create", "Replace/Update", "Debug"))
+	transpile_project_parser.add_argument(dest="out_format", help="The format used when transpiling.", choices=("None", "Create", "Replace", "Debug"))
 
 	# Run parser
 	return parser.parse_args()
