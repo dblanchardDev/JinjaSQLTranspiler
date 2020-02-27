@@ -28,41 +28,44 @@ All of Jinja-SQL Transpiler's actions can be run via Visual Studio Code's tasks.
 ### Set Options
 Set the user defined options used by the transpiler. If none are specified, will use defaults.
 
-| Option | Description | Default |
-|--------|-------------|---------|
-| Templates Dir | Path† to the directory containing the project's templates. | `templates`
-| Transpiled Dir | Path† to the directory where transpiled files will be output. | `transpiled`
-| Debug Dir | Path† to the directory where debugging files will be output. | `debug`
-| ANSI Nulls | Whether to explicitly enable [ANSI-NULLS](https://docs.microsoft.com/en-us/sql/t-sql/statements/set-ansi-nulls-transact-sql?view=sql-server-ver15) in programmability code. | `True`
-| Skip Prefixes | All file name prefixes which will be skipped when transpiling project (comma-separated list). | `part,ext`
+| Option                | Default       | Description
+|-----------------------|---------------|-------------
+| Templates Directory   | `templates`   | Path† to the directory containing the project's templates.
+| Transpiled Directory  | `transpiled`  | Path† to the directory where transpiled files will be output.
+| Debug Directory       | `debug`       | Path† to the directory where debugging files will be output.
+| ANSI Nulls            | `True`        | Whether to explicitly enable [ANSI-NULLS](https://docs.microsoft.com/en-us/sql/t-sql/statements/set-ansi-nulls-transact-sql?view=sql-server-ver15) in programmability code.
+| Skip Prefixes         | `part,ext`    | All file name prefixes which will be skipped when transpiling project (comma-separated list).
 
 † *Paths to folders may be relative from the root of the workspace root.*
 
 ### Transpile Current File
 Transpile the file that is currently open in Visual Studio Code.
 
-See [Format Templates](#format-templates) below for details on the options.
+If a [Format Templates](#format-templates) was used, choose *Create* or *Replace* as the format. Otherwise, choose *None*.
 
 ### Debug Current File
-Transpile the file that is currently open in Visual Studio Code into an easily debuggable format.
+Transpile the file that is currently open in Visual Studio Code into an easily debuggable structure. This task will only work on files that use a [Format Templates](#format-templates).
 
 ### Transpile Project
 Transpile all files found in the *templates* folder, only skipping those that are prefixed with a value from the *skip prefixes* option (see [above](#set-options)).
 
-Therefore, all files except those marked to be skipped must be Jinja templates.
-
-See [Format Templates](#format-templates) below for details on the options.
+If a [Format Templates](#format-templates) was used, choose *Create* or *Replace* as the format. Otherwise, choose *None*.
 
 ---
 
 ## Format Templates
-_**Not yet implemented**_
+Format templates are provided for most SQL item types as part of the Jinja-SQL Transpiler. When used, these modify the code in order to provide various output files.
 
-| Format | Description |
-|--------|-------------|
-| Create | … |
-| Replace | … |
-| None | … |
+The following output modes are available:
+
+| Format   | Description
+|----------|-------------
+| Create   | Create the item. Will fail if the item already exists.
+| Replace  | Replace or alter an existing item.
+| Debug    | Modifies the code to allow for immediate execution and interactive debugging.
+| None     | Does not use a format template.
+
+Details on using the format templates in your Jinja templates can be found in: [Using Format Templates](UsingFormatTemplates.md).
 
 ---
 
