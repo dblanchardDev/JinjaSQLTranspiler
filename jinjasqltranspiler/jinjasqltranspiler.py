@@ -10,6 +10,7 @@ import ctypes
 import json
 import os
 import pathlib
+import shutil
 from copy import copy
 
 from jinja2 import Environment, FileSystemLoader
@@ -153,6 +154,15 @@ class JinjaSQLTranspiler():
 
 		# Starting message
 		print(" 🗃 Transpiling project")
+
+		# Empty the transpiling directory
+		for item in os.listdir(self._transpiled_dir):
+			path = os.path.join(self._transpiled_dir, item)
+
+			if os.path.isdir(path):
+				shutil.rmtree(path)
+			else:
+				os.remove(path)
 
 		# Loop through all files in the template directory
 		for (dirpath, dirnames, filenames) in os.walk(self._templates_dir): #pylint: disable=unused-variable
