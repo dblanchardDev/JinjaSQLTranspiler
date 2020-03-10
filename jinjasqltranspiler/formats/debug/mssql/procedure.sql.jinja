@@ -23,12 +23,18 @@ GO
 -- PARAMETERS =================================================================
 DECLARE
 	{% for param in parameters.split(",") %}
-	{{ param|trim }} = {{ param|columntovalue }}
-		{%- if loop.last %};{% else %},
-		{% endif %}
+	{% if "=" in param %}
+	{{ param|trim }}{%- if loop.last %};{% else %},{% endif %}
+
+	{% elif "OUTPUT" in param|upper %}
+	{{ param|upper|replace("OUTPUT", "")|trim }}{%- if loop.last %};{% else %},{% endif %} -- OUTPUT
+
+	{% else %}
+	{{ param|trim }} = {{ param|columntovalue }}{%- if loop.last %};{% else %},{% endif %}
+
+	{% endif %}
 	{% endfor %}
 {% endif %}
-
 
 -- LOGIC ======================================================================
 	{{ logic|trim }}
