@@ -2,6 +2,7 @@
 {% set comments %}{% block comments %}{% endblock %}{% endset %}
 {% set name %}{% block name %}{% endblock %}{% endset %}
 {% set parameters %}{% block parameters %}{% endblock %}{% endset %}
+{% set data_type %}{% block data_type %}{% endblock %}{% endset %}
 {% set select %}{% block select %}{% endblock %}{% endset -%}
 
 {# COMMENTS #}
@@ -18,7 +19,7 @@ GO
 {# CREATE FUNCTION #}
 CREATE FUNCTION {{ name|trim }}{% if parameters %} (
 {{ parameters }}
-){% endif %} RETURNS TABLE AS
+){% endif %} RETURNS {{ data_type|default('TABLE', True)|trim }} AS
 RETURN
 
 	{{ select|trim }}
