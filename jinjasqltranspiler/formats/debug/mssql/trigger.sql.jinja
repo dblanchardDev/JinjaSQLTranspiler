@@ -1,5 +1,4 @@
 {# EXTRACT BLOCK VALUES #}
-{% set comments %}{% block comments %}{% endblock %}{% endset %}
 {% set name %}{% block name %}{% endblock %}{% endset %}
 {% set table %}{% block table %}{% endblock %}{% endset %}
 {% set activated %}{% block activated %}{% endblock %}{% endset %}
@@ -10,16 +9,8 @@
 -- AFTER {{ activated|upper }}
 -- ON {{ table|trim }}
 
-{# COMMENTS #}
-{% if comments %}
-{{ comments }}
-{% endif -%}
-
-{# SET ANSI NULLS #}
-{% if ansi_nulls %}SET ANSI_NULLS ON;
-GO
-
-{% endif -%}
+{# COMMENTS & MODIFIERS #}
+{% include "jst/mssql/_controls.sql.jinja" -%}
 
 -- FAKE TRIGGER CHANGE TABLES =================================================
 INSERT #inserted
