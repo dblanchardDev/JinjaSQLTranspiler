@@ -1,0 +1,219 @@
+{
+	// Jinja-SQL Transpiler Format Templates ------------------------------------------------------
+	"JST MSSQL Table": {
+		"description": "Format Template for a SQL Server Table in the Jinja-SQL Transpiler.",
+		"scope": "jinja-sql",
+		"prefix": "jst-mssql-table",
+		"body": [
+			"{% extends \"jst/mssql/table.sql.jinja\" %}",
+			"{% block comments %}",
+			"$1",
+			"{% endblock %}",
+			"",
+			"CREATE TABLE {% block name %} $2 {% endblock %} (",
+			"\t{% block columns %}",
+			"\t$0",
+			"\t{% endblock %}",
+			");"
+		]
+	},
+	"JST MSSQL View": {
+		"description": "Format Template for a SQL Server View in the Jinja-SQL Transpiler.",
+		"scope": "jinja-sql",
+		"prefix": "jst-mssql-view",
+		"body": [
+			"{% extends \"jst/mssql/view.sql.jinja\" %}",
+			"{% block comments %}",
+			"$1",
+			"{% endblock %}",
+			"",
+			"CREATE VIEW {% block name %} $2 {% endblock %} AS",
+			"\t{% block select %}",
+			"\t$0",
+			"\t{% endblock %}"
+		]
+	},
+	"JST MSSQL Stored Procedure": {
+		"description": "Format Template for a SQL Server Stored Procedure in the Jinja-SQL Transpiler.",
+		"scope": "jinja-sql",
+		"prefix": "jst-mssql-sp",
+		"body": [
+			"{% extends \"jst/mssql/procedure.sql.jinja\" %}",
+			"{% block comments %}",
+			"$1",
+			"{% endblock %}",
+			"",
+			"CREATE PROCEDURE {% block name %} $2 {% endblock %}",
+			"\t{% block parameters %}",
+			"\t$3",
+			"\t{% endblock %}",
+			") AS",
+			"BEGIN",
+			"\t{% block logic %}",
+			"",
+			"\t$0",
+			"",
+			"\t{% endblock %}"
+		]
+	},
+	"JST MSSQL Table-valued Function": {
+		"description": "Format Template for a SQL Server Table-valued Function in the Jinja-SQL Transpiler.",
+		"scope": "jinja-sql",
+		"prefix": "jst-mssql-tvf",
+		"body": [
+			"{% extends \"jst/mssql/tvf.sql.jinja\" %}",
+			"{% block comments %}",
+			"$1",
+			"{% endblock %}",
+			"",
+			"CREATE FUNCTION {% block name %} $2 {% endblock %} (",
+			"\t{% block parameters %}",
+			"\t$3",
+			"\t{% endblock %}",
+			")",
+			"RETURNS {% block data_type %} ${4:TABLE} {% endblock %} AS",
+			"RETURN",
+			"\t{% block select %}",
+			"",
+			"\t$0",
+			"",
+			"\t{% endblock %}"
+		]
+	},
+	"JST MSSQL Scalar Function": {
+		"description": "Format Template for a SQL Server Scalar Function in the Jinja-SQL Transpiler.",
+		"scope": "jinja-sql",
+		"prefix": "jst-mssql-scalar",
+		"body": [
+			"{% extends \"jst/mssql/scalar.sql.jinja\" %}",
+			"{% block comments %}",
+			"$1",
+			"{% endblock %}",
+			"",
+			"CREATE FUNCTION {% block name %} $2 {% endblock %} (",
+			"\t{% block parameters %}",
+			"\t$3",
+			"\t{% endblock %}",
+			")",
+			"RETURNS {% block data_type %} $4 {% endblock %} AS",
+			"BEGIN",
+			"\t{% block logic %}",
+			"",
+			"\t$0",
+			"",
+			"\tRETURN $5;",
+			"",
+			"\t{% endblock %}",
+			"END;"
+		]
+	},
+	"JST MSSQL Trigger": {
+		"description": "Format Template for a SQL Server Trigger in the Jinja-SQL Transpiler.",
+		"scope": "jinja-sql",
+		"prefix": "jst-mssql-trigger",
+		"body": [
+			"{% extends \"jst/mssql/table.sql.jinja\" %}",
+			"{% block comments %}",
+			"$1",
+			"{% endblock %}",
+			"",
+			"CREATE TRIGGER {% block name %} $2 {% endblock %}",
+			"ON {% block table %} $3 {% endblock  %}",
+			"AFTER {% block activated %} ${4|INSERT,UPDATE,DELETE} {% endblock %}",
+			"AS",
+			"\t{% block logic %}",
+			"",
+			"\t$0",
+			"",
+			"\t{% endblock %}"
+		]
+	},
+
+	// JINJA2 -------------------------------------------------------------------------------------
+	"Jinja Block": {
+		"scope": "jinja-sql",
+		"prefix": "jblock",
+		"body": [
+			"{% block $1 %}",
+			"\t$2",
+			"{% endblock $1 %}"
+		]
+	},
+	"Jinja If": {
+		"scope": "jinja-sql",
+		"prefix": "jif",
+		"body": [
+			"{% if $1 %}",
+			"\t$2",
+			"{% endif %}"
+		]
+	},
+	"Jinja If-Else": {
+		"scope": "jinja-sql",
+		"prefix": "jelse",
+		"body": [
+			"{% if $1 %}",
+			"\t$2",
+			"{% else %}",
+			"\t$3",
+			"{% endif %}"
+		]
+	},
+	"Jinja If-Elif-Else": {
+		"scope": "jinja-sql",
+		"prefix": "jelif",
+		"body": [
+			"{% if $1 %}",
+			"\t$2",
+			"{% elif $3 %}",
+			"\t$4",
+			"{% else %}",
+			"\t$5",
+			"{% endif %}"
+		]
+	},
+	"Jinja Extend": {
+		"scope": "jinja-sql",
+		"prefix": "jextend",
+		"body": [
+			"{% extends \"$1\" %}"
+		]
+	},
+	"Jinja For Loop": {
+		"scope": "jinja-sql",
+		"prefix": "jfor",
+		"body": [
+			"{% for $1 in $2 %}",
+			"\t$3",
+			"{% endfor %}"
+		]
+	},
+	"Jinja Function": {
+		"scope": "jinja-sql",
+		"prefix": "jfunc",
+		"body": [
+			"{% $1 %}"
+		]
+	},
+	"Jinja Variable": {
+		"scope": "jinja-sql",
+		"prefix": "jvar",
+		"body": [
+			"{{ $1 }}"
+		]
+	},
+	"Jinja Set": {
+		"scope": "jinja-sql",
+		"prefix": "jset",
+		"body": [
+			"{% set $1 = $2 %}"
+		]
+	},
+	"Jinja Include": {
+		"scope": "jinja-sql",
+		"prefix": "jinclude",
+		"body": [
+			"{% include \"$1\" %}"
+		]
+	},
+}
