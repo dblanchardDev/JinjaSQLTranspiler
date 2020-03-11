@@ -13,6 +13,7 @@ In addition, Jinja-SQL Transpiler will need to know which Python executable to u
 ## Setup
 1. Copy the *jinjasqltranspiler* folder into your project.
 2. Copy the *task.json* file into your project's *.vscode* folder. If the folder does not exist, create it. If the *task.json* file already exists, you will need to merge the 2 JSON files if you want to keep existing tasks.
+3. Copy the *JinjaSQLTranspiler.code-snippets* file into your project's *.vscode* folder.
 
 ---
 
@@ -64,6 +65,35 @@ The following output modes are available:
 | None     | Does not use a format template.
 
 Details on using the format templates in your Jinja templates can be found in: [Using Format Templates](UsingFormatTemplates.md).
+
+---
+
+## Snippets
+The following Visual Studio Code [snippets](https://code.visualstudio.com/docs/editor/userdefinedsnippets) to scaffold Format Templates and provide quick access to common Jinja template blocks are provided:
+
+### Format Templates
+| Key               | Description
+|-------------------|-------------
+| jst-mssql-table   | SQL Server Table
+| jst-mssql-view    | SQL Server View
+| jst-mssql-sp      | SQL Server Stored Procedure
+| jst-mssql-tvf     | SQL Server Table-valued Function
+| jst-mssql-scalar  | SQL Server Scalar Function
+| jst-mssql-trigger | SQL Server Trigger
+
+### Jinja Template Blocks
+| Key      | Block
+|----------|-------
+| jblock   | block
+| jif      | if
+| jelse    | if-else
+| jelif    | if-elif-else
+| jextend  | extend
+| jfor     | for loop
+| jfunc    | function
+| jvar     | variable
+| jset     | set
+| jinclude | include
 
 ---
 
