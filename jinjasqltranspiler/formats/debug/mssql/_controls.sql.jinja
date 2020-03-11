@@ -7,6 +7,12 @@ GO
 
 {% endif -%}
 
+{# SET QUOTED IDENTIFIER #}
+{% if quoted_id %}SET QUOTED_IDENTIFIER ON;
+GO
+
+{% endif -%}
+
 {# COMMENTS #}
 {% if comments %}
 {{ comments }}
