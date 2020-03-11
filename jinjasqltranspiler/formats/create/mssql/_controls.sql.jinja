@@ -1,0 +1,16 @@
+{# SET ANSI NULLS #}
+{% if ansi_nulls %}SET ANSI_NULLS ON;
+GO
+
+{% endif -%}
+
+{# SET QUOTED IDENTIFIER #}
+{% if quoted_id %}SET QUOTED_IDENTIFIER ON;
+GO
+
+{% endif -%}
+
+{# COMMENTS #}
+{% if comments %}
+{{ comments }}
+{% endif -%}

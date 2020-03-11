@@ -12,6 +12,7 @@
 				"-p", "${input:jst_transpiled_dir}",
 				"-d", "${input:jst_debug_dir}",
 				"-n", "${input:jst_ansi_nulls}",
+				"-q", "${input:jst_quoted_id}",
 				"-s", "${input:jst_skip_prefixes}"
 			],
 			"presentation": {
@@ -93,7 +94,14 @@
 		{
 			"id": "jst_ansi_nulls",
 			"type": "pickString",
-			"description": "Whether to explicitly enable ANSI-NULLS for programmability code.",
+			"description": "Whether to explicitly enable ANSI-NULLS in transpiled code.",
+			"options": ["True", "False"],
+			"default": "True"
+		},
+		{
+			"id": "jst_quoted_id",
+			"type": "pickString",
+			"description": "Whether to explicitly enable quoted identifiers in transpiled code.",
 			"options": ["True", "False"],
 			"default": "True"
 		},
