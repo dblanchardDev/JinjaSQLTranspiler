@@ -21,9 +21,13 @@ GO
 -- PARAMETERS =================================================================
 DECLARE
 	{% for param in parameters.split(",") %}
-	{{ param|trim }} = {{ param|columntovalue }}
-		{%- if loop.last %};{% else %},
-		{% endif %}
+	{% if "=" in param %}
+	{{ param|trim }}{%- if loop.last %};{% else %},{% endif %}
+
+	{% else %}
+	{{ param|trim }} = {{ param|columntovalue }}{%- if loop.last %};{% else %},{% endif %}
+
+	{% endif %}
 	{% endfor %}
 {% endif %}
 
