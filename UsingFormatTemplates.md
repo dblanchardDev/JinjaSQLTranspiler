@@ -86,6 +86,7 @@ The following code blocks are available for each of the above listed items.
 | `comments`        | Optional | Comments to be placed at the top of the file.
 | `name`            | Required | The function's name (and schema).
 | `parameters`      | Optional | The comma-separated list of input parameters.
+| `data_type`		| Optional | The data-type definition (defaults to `TABLE`).
 | `select`          | Required | The select statement which returns the table.
 
 #### Scalar Functions
@@ -207,7 +208,7 @@ CREATE FUNCTION {% block name %} data_owner.RelatedInfo {% endblock %} (
 	@Vehicle_ID AS VARCHAR(30)
 	{% endblock %}
 )
-RETURNS TABLE AS
+RETURNS {% block data_type %} TABLE WITH SCHEMABINDING {% endblock %} AS
 RETURN
 	{% block select %}
 
