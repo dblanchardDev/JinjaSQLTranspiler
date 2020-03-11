@@ -19,7 +19,7 @@ GO
 {# CREATE FUNCTION #}
 CREATE FUNCTION {{ name|trim }}{% if parameters %} (
 {{ parameters }}
-){% endif %} RETURNS {{ data_type|default('TABLE')|trim } AS
+){% endif %} RETURNS {{ data_type|default('TABLE', True)|trim }} AS
 RETURN
 
 	{{ select|trim }}
