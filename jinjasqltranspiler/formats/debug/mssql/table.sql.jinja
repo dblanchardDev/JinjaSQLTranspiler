@@ -1,21 +1,13 @@
 {# EXTRACT BLOCK VALUES #}
-{% set comments %}{% block comments %}{% endblock %}{% endset %}
+{% set comments %}{% block comments %}{% endblock %}{% endset -%}
 {% set name %}{% block name %}{% endblock %}{% endset %}
 {% set columns %}{% block columns %}{% endblock %}{% endset -%}
 
 -- **TABLE DEBUGGING**
 -- {{ name|trim }}
 
-{# COMMENTS #}
-{% if comments %}
-{{ comments }}
-{% endif -%}
-
-{# SET ANSI NULLS #}
-{% if ansi_nulls %}SET ANSI_NULLS ON;
-GO
-
-{% endif -%}
+{# COMMENTS & MODIFIERS #}
+{% include "jst/mssql/_controls.sql.jinja" -%}
 
 -- CREATE TEMP TABLE
 CREATE TABLE #{{ name.split(".")[-1] }} (

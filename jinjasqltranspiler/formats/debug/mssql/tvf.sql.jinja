@@ -1,5 +1,5 @@
 {# EXTRACT BLOCK VALUES #}
-{% set comments %}{% block comments %}{% endblock %}{% endset %}
+{% set comments %}{% block comments %}{% endblock %}{% endset -%}
 {% set name %}{% block name %}{% endblock %}{% endset %}
 {% set parameters %}{% block parameters %}{% endblock %}{% endset %}
 {% set select %}{% block select %}{% endblock %}{% endset -%}
@@ -7,16 +7,8 @@
 -- **TABLE-VALUED FUNCTION DEBUGGING**
 -- {{ name|trim }}
 
-{# COMMENTS #}
-{% if comments %}
-{{ comments }}
-{% endif -%}
-
-{# SET ANSI NULLS #}
-{% if ansi_nulls %}SET ANSI_NULLS ON;
-GO
-
-{% endif -%}
+{# COMMENTS & MODIFIERS #}
+{% include "jst/mssql/_controls.sql.jinja" -%}
 
 {# DECLARE PARAMETERS #}
 {% if parameters -%}

@@ -39,6 +39,7 @@ class JinjaSQLTranspiler():
 	_transpiled_dir = None
 	_debug_dir = None
 	_ansi_nulls = None
+	_quoted_id = None
 	_skip_prefixes = None
 
 	_jinja = None
@@ -51,6 +52,7 @@ class JinjaSQLTranspiler():
 		"transpiled_dir": "transpiled",
 		"debug_dir": "debug",
 		"ansi_nulls": True,
+		"quoted_id": True,
 		"skip_prefixes": ["ext", "part"]
 	}
 
@@ -69,6 +71,7 @@ class JinjaSQLTranspiler():
 		self._transpiled_dir = self._get_abs_path(options["transpiled_dir"])
 		self._debug_dir = self._get_abs_path(options["debug_dir"])
 		self._ansi_nulls = options["ansi_nulls"]
+		self._quoted_id = options["quoted_id"]
 		self._skip_prefixes = options["skip_prefixes"]
 
 		# Build Jinja Environment
@@ -111,7 +114,8 @@ class JinjaSQLTranspiler():
 
 			rendered = template.render({
 				"out_format": self._out_format,
-				"ansi_nulls": self._ansi_nulls
+				"ansi_nulls": self._ansi_nulls,
+				"quoted_id": self._quoted_id
 			})
 
 			# Write the template to file
@@ -189,14 +193,15 @@ class JinjaSQLTranspiler():
 
 	# OPTIONS -------------------------------------------------------------------------------------
 	@staticmethod
-	def set_options(templates_dir=None, transpiled_dir=None, debug_dir=None, ansi_nulls=None, skip_prefixes=None):
+	def set_options(templates_dir=None, transpiled_dir=None, debug_dir=None, ansi_nulls=None, quoted_id=None, skip_prefixes=None):
 		"""Set the user defined options used by the transpiler.
 
 		Args:
 			templates_dir (str, optional): Path† to the directory containing the project's templates.
 			transpiled_dir (str, optional): Path† to the directory where transpiled files will be output.
 			debug_dir (str, optional): Path† to the directory where debuging files will be output.
-			ansi_nulls (bool, optional): Whether to explicitly enable ANSI Nulls in programmability code.
+			ansi_nulls (bool, optional): Whether to explicitly enable ANSI Nulls in transpiled code.
+			quoted_id (bool, optional): Whether to explicitly enable quoted identifiers in transpiled code.
 			skip_prefixes (list: str, optional): All file name prefixes which will be skipped when transpiling project.
 
 		† Path can be absolute or relative to the VS Code workspace.
@@ -221,6 +226,9 @@ class JinjaSQLTranspiler():
 		if ansi_nulls is not None:
 			options["ansi_nulls"] = ansi_nulls == "True"
 
+		if quoted_id is not None:
+			options["quoted_id"] = quoted_id == "True"
+
 		if skip_prefixes is not None:
 			options["skip_prefixes"] = skip_prefixes.split(",")
 
@@ -243,7 +251,8 @@ class JinjaSQLTranspiler():
 				templates_dir (str): Path† to the directory containing the project's templates,
 				transpiled_dir (str): Path† to the directory where transpiled files will be output,
 				debug_dir (str): Path† to the directory where debuging files will be output,
-				ansi_nulls (bool): Whether to explicitly enable ANSI Nulls in programmability code,
+				ansi_nulls (bool): Whether to explicitly enable ANSI Nulls in transpiled code,
+				quoted_id (bool): Whether to explicitly enable quoted identifiers in transpiled code,
 				skip_prefixes (list: str): All file name prefixes which will be skipped when transpiling project,
 			}
 
@@ -410,12 +419,14 @@ def _parse_arguments():
 
 	# Command: Set Options
 	option_parser = subparsers.add_parser("set_options", help="Set the user defined options used by the transpiler.")
-	nulls_help = "Whether to explicitly enable ANSI Nulls in programmability code."
+	nulls_help = "Whether to explicitly enable ANSI Nulls in transpiled code."
+	quoted_help = "Whether to explicitly enable QUOTED IDENTEFIERS in transpiled code."
 
 	option_parser.add_argument("-t", dest="templates_dir", help="Path to the directory containing the project's templates.")
 	option_parser.add_argument("-p", dest="transpiled_dir", help="Path to the directory where transpiled files will be output.")
 	option_parser.add_argument("-d", dest="debug_dir", help="Path to the directory where debuging files will be output.")
 	option_parser.add_argument("-n", dest="ansi_nulls", help=nulls_help, choices=("True", "False"))
+	option_parser.add_argument("-q", dest="quoted_id", help=quoted_help, choices=("True", "False"))
 	option_parser.add_argument("-s", dest="skip_prefixes", help=" All file name prefixes which will be skipped when transpiling project.")
 
 	# Command: Transpile File
