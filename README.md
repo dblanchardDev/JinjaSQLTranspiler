@@ -33,7 +33,7 @@ Set the user defined options used by the transpiler. If none are specified, will
 | Transpiled Directory  | `transpiled`  | Path† to the directory where transpiled files will be output.
 | Debug Directory       | `debug`       | Path† to the directory where debugging files will be output.
 | ANSI Nulls            | `True`        | Whether to explicitly enable [ANSI-NULLS](https://docs.microsoft.com/en-us/sql/t-sql/statements/set-ansi-nulls-transact-sql?view=sql-server-ver15) in transpiled code.
-| Quoted Identifier     | `True`        | Whether to explicitly enable [Quoted Identifiers]https://docs.microsoft.com/en-us/sql/t-sql/statements/set-quoted-identifier-transact-sql?view=sql-server-ver15) in transpiled code.
+| Quoted Identifier     | `True`        | Whether to explicitly enable [Quoted Identifiers](https://docs.microsoft.com/en-us/sql/t-sql/statements/set-quoted-identifier-transact-sql?view=sql-server-ver15) in transpiled code.
 | Skip Prefixes         | `part,ext`    | All file name prefixes which will be skipped when transpiling project (comma-separated list).
 
 † *Paths to folders may be relative from the root of the workspace root.*
