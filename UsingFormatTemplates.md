@@ -87,7 +87,7 @@ The following code blocks are available for each of the above listed items.
 | `name`            | Required | The function's name (and schema).
 | `parameters`      | Optional | The comma-separated list of input parameters.
 | `data_type`		| Optional | The data-type definition (defaults to `TABLE`).
-| `select`          | Required | The select statement which returns the table.
+| `logic`           | Required | The statements which returns the table.
 
 #### Scalar Functions
 | Block             | MSSQL    | Description
@@ -210,7 +210,7 @@ CREATE FUNCTION {% block name %} data_owner.RelatedInfo {% endblock %} (
 )
 RETURNS {% block data_type %} TABLE WITH SCHEMABINDING {% endblock %} AS
 RETURN
-	{% block select %}
+	{% block logic %}
 
 	SELECT *
 	FROM data_owner.InfoTable

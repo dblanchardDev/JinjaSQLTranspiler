@@ -3,17 +3,17 @@
 {% set name %}{% block name %}{% endblock %}{% endset %}
 {% set parameters %}{% block parameters %}{% endblock %}{% endset %}
 {% set data_type %}{% block data_type %}{% endblock %}{% endset %}
-{% set select %}{% block select %}{% endblock %}{% endset -%}
+{% set logic %}{% block logic %}{% endblock %}{% endset -%}
 
 {# COMMENTS & MODIFIERS #}
 {% include "jst/mssql/_controls.sql.jinja" -%}
 
 {# CREATE FUNCTION #}
-ALTER FUNCTION {{ name|trim }}{% if parameters %} (
+ALTER FUNCTION {{ name|trim }} ({% if parameters %}
 {{ parameters }}
-){% endif %} RETURNS {{ data_type|default('TABLE', True)|trim }} AS
-RETURN
+{% endif %})
+	RETURNS {{ data_type|default('TABLE', True)|trim }} AS
 
-	{{ select|trim }}
+{{ logic|trim }}
 
 GO

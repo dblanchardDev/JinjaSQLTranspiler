@@ -71,13 +71,14 @@
 			"\t$3",
 			"\t{% endblock %}",
 			")",
-			"RETURNS {% block data_type %} ${4:TABLE} {% endblock %} AS",
+			"RETURNS {% block data_type %} ${4:TABLE} {% endblock %}",
+			"AS",
+			"{% block logic %}",
+			"",
 			"RETURN",
-			"\t{% block select %}",
+			"$0",
 			"",
-			"\t$0",
-			"",
-			"\t{% endblock %}"
+			"{% endblock %}"
 		]
 	},
 	"JST MSSQL Scalar Function": {
