@@ -2,7 +2,8 @@
 {% set comments %}{% block comments %}{% endblock %}{% endset -%}
 {% set name %}{% block name %}{% endblock %}{% endset %}
 {% set parameters %}{% block parameters %}{% endblock %}{% endset %}
-{% set select %}{% block select %}{% endblock %}{% endset -%}
+{% set data_type %}{% block data_type %}{% endblock %}{% endset %}
+{% set logic %}{% block logic %}{% endblock %}{% endset -%}
 
 -- **TABLE-VALUED FUNCTION DEBUGGING**
 -- {{ name|trim }}
@@ -25,8 +26,12 @@ DECLARE
 	{% endfor %}
 {% endif %}
 
+{% if data_type and "@" in data_type -%}
+-- RETURN TABLE DEFINITION ====================================================
+DECLARE {{ data_type|trim }};
+{% endif %}
 
 -- LOGIC ======================================================================
-	{{ select|trim }}
+	{{ logic|trim }}
 
 GO
