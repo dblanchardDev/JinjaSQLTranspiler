@@ -9,9 +9,9 @@
 {% include "jst/mssql/_controls.sql.jinja" -%}
 
 {# CREATE FUNCTION #}
-ALTER FUNCTION {{ name|trim }}{% if parameters %} (
+ALTER FUNCTION {{ name|trim }} ({% if parameters %}
 {{ parameters }}
-){% endif %}
+{% endif %})
 	RETURNS {{ data_type|default('TABLE', True)|trim }} AS
 
 {{ logic|trim }}
