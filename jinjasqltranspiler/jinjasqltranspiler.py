@@ -461,44 +461,67 @@ class JinjaSQLTranspiler():
 
 			value = "NULL"
 
+			# Numeric
 			if "bingint" in definition:
 				value = "6223372036854775807"
-			elif "int" in definition:
-				value = "845655"
 			elif "smallint" in definition:
 				value = "2515"
 			elif "tinyint" in definition:
 				value = "12"
+			elif "int" in definition:
+				value = "845655"
+
 			elif "bit" in definition:
 				value = "1"
-			elif "decimal" in definition:
-				value = "1.2"
-			elif "numeric" in definition:
-				value = "1.2"
-			elif "money" in definition:
-				value = "158.25"
+
 			elif "smallmoney" in definition:
 				value = "5.12"
+			elif "money" in definition:
+				value = "158.25"
+
+			elif "decimal" in definition:
+				value = "1.23434"
+			elif "numeric" in definition:
+				value = "1.2344"
 			elif "float" in definition:
-				value = "9.85"
+				value = "9.33432"
 			elif "real" in definition:
-				value = "9.85"
+				value = "9.33432"
+
+			# Date/Time
 			elif "smalldatetime" in definition:
 				value = "'2020-01-01 11:45'"
 			elif "datetime" in definition:
 				value = "'2020-01-01 11:45:54'"
+
+			# Text
 			elif "nvarchar" in definition:
-				value = "N'ABC'"
-			elif "varchar" in definition:
-				value = "'ABC'"
-			elif "nchar" in definition:
 				value = "N'A'"
-			elif "char" in definition:
+			elif "varchar" in definition:
 				value = "'A'"
+			elif "nchar" in definition:
+				value = "N'X'"
+			elif "char" in definition:
+				value = "'X'"
 			elif "ntext" in definition:
-				value = "N'ABC'"
+				value = "N'B'"
 			elif "text" in definition:
-				value = "'ABC'"
+				value = "'B'"
+
+			# Others
+			elif "varbinary" in definition:
+				length = definition.split("(")[1].split(")")[0]
+				value = "123456 AS VARBINARY({})".format(length)
+
+			elif "binary" in definition:
+				length = definition.split("(")[1].split(")")[0]
+				value = "123456 AS BINARY({})".format(length)
+
+			elif "geometry" in definition:
+				value = "GEOMETRY::STPointFromText('POINT (100 100)', 0)"
+
+			elif "geography" in definition:
+				value = "GEOGRAPHY::STGeomFromText('LINESTRING(-122.360 47.656, -122.343 47.656)', 4326)"
 
 		return value
 
