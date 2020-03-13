@@ -444,6 +444,13 @@ class JinjaSQLTranspiler():
 			else:
 				value = "NULL"
 
+		# Otherwise, use default if available
+		elif "=" in definition:
+			value = definition.split("=")[1].strip()
+
+			if value.endswith(","):
+				value = value[:-1].strip()
+
 		# Otherwise, use placeholder values
 		else:
 			definition = definition.lower()
