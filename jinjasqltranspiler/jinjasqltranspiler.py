@@ -195,7 +195,7 @@ class JinjaSQLTranspiler():
 
 	# OPTIONS -------------------------------------------------------------------------------------
 	@staticmethod
-	def set_options(templates_dir=None, transpiled_dir=None, debug_dir=None, ansi_nulls=None, quoted_id=None, skip_prefixes=None):
+	def set_options(workspace, templates_dir=None, transpiled_dir=None, debug_dir=None, ansi_nulls=None, quoted_id=None, skip_prefixes=None):
 		"""Set the user defined options used by the transpiler.
 
 		Args:
@@ -236,7 +236,8 @@ class JinjaSQLTranspiler():
 
 		# Write to file
 		options_json = json.dumps(options)
-		with open(JinjaSQLTranspiler.OPTION_FILE, "w", encoding="utf-8") as optFile:
+		options_path = os.path.join(workspace, JinjaSQLTranspiler.OPTION_FILE)
+		with open(options_path, "w", encoding="utf-8") as optFile:
 			optFile.write(options_json)
 
 		# Completed Message
@@ -263,7 +264,8 @@ class JinjaSQLTranspiler():
 		options = None
 
 		# If a file exists, use those
-		if os.path.isfile(self.OPTION_FILE):
+		options_path = os.path.join(self._workspace_dir, self.OPTION_FILE)
+		if os.path.isfile(options_path):
 			with open(self.OPTION_FILE, "r", encoding="utf-8") as optFile:
 				options = json.loads(optFile.read())
 
@@ -517,6 +519,7 @@ def _parse_arguments():
 	nulls_help = "Whether to explicitly enable ANSI Nulls in transpiled code."
 	quoted_help = "Whether to explicitly enable QUOTED IDENTEFIERS in transpiled code."
 
+	option_parser.add_argument(dest="workspace", help="The absolute path to the VS Code project workspace.")
 	option_parser.add_argument("-t", dest="templates_dir", help="Path to the directory containing the project's templates.")
 	option_parser.add_argument("-p", dest="transpiled_dir", help="Path to the directory where transpiled files will be output.")
 	option_parser.add_argument("-d", dest="debug_dir", help="Path to the directory where debuging files will be output.")
