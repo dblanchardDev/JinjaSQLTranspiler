@@ -43,7 +43,7 @@
 			"$1",
 			"{% endblock %}",
 			"",
-			"CREATE PROCEDURE {% block name %} $2 {% endblock %}",
+			"CREATE PROCEDURE {% block name %} $2 {% endblock %} (",
 			"\t{% block parameters %}",
 			"\t$3",
 			"\t{% endblock %}",

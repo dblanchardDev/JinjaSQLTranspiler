@@ -9,8 +9,7 @@
 
 {# CREATE PROCEDURE #}
 CREATE PROCEDURE {{ name|trim }}{% if parameters %}(
-{{ parameters }}
-){% endif %} AS
+{{ parameters }}){% endif %} AS
 BEGIN
 	SET NOCOUNT ON;
 
