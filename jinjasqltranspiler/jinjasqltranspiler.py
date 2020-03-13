@@ -287,7 +287,7 @@ class JinjaSQLTranspiler():
 		if not os.path.exists(presets_path):
 			# Create a sample
 			preset_json = json.dumps({
-				"path_relative_to_templates/example.sql.jinja": {
+				"path_relative_to_templates/use_forward_slashes/example.sql.jinja": {
 					"@stringParameter": "preset value",
 					"@dateParameter": "2020-01-01T00:00:00",
 					"@numberParameter": 123,
@@ -320,6 +320,8 @@ class JinjaSQLTranspiler():
 		# Make template path relative to templates
 		if os.path.isabs(template_path):
 			template_path = os.path.relpath(template_path, self._templates_dir)
+
+		template_path = template_path.replace("\\", "/")
 
 		# Fetch the parameter presets if available
 		presets = None
