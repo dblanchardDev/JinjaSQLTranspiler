@@ -46,10 +46,35 @@ If a [Format Templates](#format-templates) was used, choose *Create* or *Replace
 ### Debug Current File
 Transpile the file that is currently open in Visual Studio Code into an easily debuggable structure. This task will only work on files that use a [Format Templates](#format-templates).
 
+Function/procedure parameters will use placeholder values by default. These may be overidden by [parameter presets](#parameter-presets).
+
 ### Transpile Project
 Transpile all files found in the *templates* folder, only skipping those that are prefixed with a value from the *skip prefixes* option (see [above](#set-options)).
 
 If a [Format Templates](#format-templates) was used, choose *Create* or *Replace* as the format. Otherwise, choose *None*.
+
+### Parameter Presets
+When debugging, function/procedure parameters and table rows will be populated by placeholder values. These placeholder values can be replaced with preset values to allow for proper testing of the script.
+
+Running this task will create a presets file if it doesn't already exist and will provide a link to the file in the terminal. Populate this file with the desired preset values for any function, procedure, or table.
+
+#### Example
+For a template file located in `<workspace>/templates/Procedures/MySP.jinja.sql`, you would add an entry to the presets file as follows:
+```json
+{
+	…
+	"Procedures/MySP.jinja.sql": {
+		"@stringParam": "my value",
+		"@dateParam": "2020-01-01 12:30:00",
+		"@numberParam": 1234,
+		"@nullParam": null
+	}
+}
+```
+
+Notes:
+ * The path is relative to the *templates* folder and must use forward-slashes (`/`).
+ * Any parameter/column that isn't defined will continue using placeholder value.
 
 ---
 
