@@ -47,6 +47,7 @@ class JinjaSQLTranspiler():
 
 	# CONSTANTS -----------------------------------------------------------------------------------
 	OPTION_FILE = "jinjasqltranspiler\\jst.options.json"
+	PRESET_FILE = "jinjasqltranspiler\\jst.presets.json"
 	OPTION_DEFAULTS = {
 		"templates_dir": "templates",
 		"transpiled_dir": "transpiled",
@@ -115,7 +116,8 @@ class JinjaSQLTranspiler():
 			rendered = template.render({
 				"out_format": self._out_format,
 				"ansi_nulls": self._ansi_nulls,
-				"quoted_id": self._quoted_id
+				"quoted_id": self._quoted_id,
+				"presets": self.get_presets(template_path),
 			})
 
 			# Write the template to file
@@ -272,6 +274,67 @@ class JinjaSQLTranspiler():
 		return options
 
 
+	# PARAMETER PRESETS ---------------------------------------------------------------------------
+	@staticmethod
+	def create_parameter_presets(workspace):
+		"""Create the parameters presets JSON file and populate it with an example.
+
+		Args:
+			workspace (str): The absolute path to the VS Code project workspace.
+		"""
+		presets_path = os.path.join(workspace, JinjaSQLTranspiler.PRESET_FILE)
+
+		if not os.path.exists(presets_path):
+			# Create a sample
+			preset_json = json.dumps({
+				"path_relative_to_templates/example.sql.jinja": {
+					"@stringParameter": "preset value",
+					"@dateParameter": "2020-01-01T00:00:00",
+					"@numberParameter": 123,
+					"@nullParameter": None,
+				}
+			}, indent="\t")
+
+			# Create the file
+			with open(JinjaSQLTranspiler.PRESET_FILE, "w", encoding="utf-8") as presetFile:
+				presetFile.write(preset_json)
+
+		# Provide path in output
+		print(" ⚙  Parameter presets file: {}".format(JinjaSQLTranspiler.PRESET_FILE))
+
+		return
+
+
+	def get_presets(self, template_path):
+		"""Get the parameter presets for a template, returning None if not found.
+
+		Args:
+			template_path (str)†: The path to the template file, relative to the template directory.
+
+		Returns:
+			(obj): As defined in the jst.presets.json file for that template.
+
+		† Path may be absolute or relative to VS Code workspace.
+		"""
+
+		# Make template path relative to templates
+		if os.path.isabs(template_path):
+			template_path = os.path.relpath(template_path, self._templates_dir)
+
+		# Fetch the parameter presets if available
+		presets = None
+		presets_path = os.path.join(self._workspace_dir, self.PRESET_FILE)
+
+		if os.path.isfile(presets_path):
+			presetData = None
+			with open(self.PRESET_FILE, "r", encoding="utf-8") as presetFile:
+				presetData = json.loads(presetFile.read())
+
+			presets = presetData.get(template_path)
+
+		return presets
+
+
 	# UTILITIES -----------------------------------------------------------------------------------
 	def _get_abs_path(self, path):
 		"""Return the absolute path, using the VS Code workspace as the root.
@@ -350,58 +413,81 @@ class JinjaSQLTranspiler():
 		return is_admin
 
 
-	def _columnToValue(self, definition):
+	def _columnToValue(self, definition, presets=None):
 		"""Return a value that is suitable for the defined column.
 
 		Args:
 			definition (string): The column definition from the SQL code.
+			presets (JSON string): Object containing an preset value for the columns.
 
 		Returns:
 			(str): Value that fits the SQL insert requirements for that column.
+			       Will use preset values if available.
 		"""
 
-		definition = definition.lower()
+		value = None
 
-		value = "NULL"
+		# Check for availability in presets
+		paramName = definition.strip().split(" ")[0]
+		if presets is not None and paramName in presets:
+			raw_value = presets[paramName]
 
-		if "bingint" in definition:
-			value = "6223372036854775807"
-		elif "int" in definition:
-			value = "845655"
-		elif "smallint" in definition:
-			value = "2515"
-		elif "tinyint" in definition:
-			value = "12"
-		elif "bit" in definition:
-			value = "1"
-		elif "decimal" in definition:
-			value = "1.2"
-		elif "numeric" in definition:
-			value = "1.2"
-		elif "money" in definition:
-			value = "158.25"
-		elif "smallmoney" in definition:
-			value = "5.12"
-		elif "float" in definition:
-			value = "9.85"
-		elif "real" in definition:
-			value = "9.85"
-		elif "smalldatetime" in definition:
-			value = "'2020-01-01 11:45'"
-		elif "datetime" in definition:
-			value = "'2020-01-01 11:45:54'"
-		elif "nvarchar" in definition:
-			value = "N'ABC'"
-		elif "varchar" in definition:
-			value = "'ABC'"
-		elif "nchar" in definition:
-			value = "N'A'"
-		elif "char" in definition:
-			value = "'A'"
-		elif "ntext" in definition:
-			value = "N'ABC'"
-		elif "text" in definition:
-			value = "'ABC'"
+			if type(raw_value) == str:
+				value = "'{}'".format(raw_value)
+
+			elif type(raw_value) in [int, float]:
+				value = str(raw_value)
+
+			elif type(raw_value) == bool:
+				value = "1" if raw_value else "0"
+
+			else:
+				value = "NULL"
+
+		# Otherwise, use placeholder values
+		else:
+			definition = definition.lower()
+
+			value = "NULL"
+
+			if "bingint" in definition:
+				value = "6223372036854775807"
+			elif "int" in definition:
+				value = "845655"
+			elif "smallint" in definition:
+				value = "2515"
+			elif "tinyint" in definition:
+				value = "12"
+			elif "bit" in definition:
+				value = "1"
+			elif "decimal" in definition:
+				value = "1.2"
+			elif "numeric" in definition:
+				value = "1.2"
+			elif "money" in definition:
+				value = "158.25"
+			elif "smallmoney" in definition:
+				value = "5.12"
+			elif "float" in definition:
+				value = "9.85"
+			elif "real" in definition:
+				value = "9.85"
+			elif "smalldatetime" in definition:
+				value = "'2020-01-01 11:45'"
+			elif "datetime" in definition:
+				value = "'2020-01-01 11:45:54'"
+			elif "nvarchar" in definition:
+				value = "N'ABC'"
+			elif "varchar" in definition:
+				value = "'ABC'"
+			elif "nchar" in definition:
+				value = "N'A'"
+			elif "char" in definition:
+				value = "'A'"
+			elif "ntext" in definition:
+				value = "N'ABC'"
+			elif "text" in definition:
+				value = "'ABC'"
 
 		return value
 
@@ -442,6 +528,10 @@ def _parse_arguments():
 	transpile_project_parser.add_argument(dest="workspace", help="The absolute path to the VS Code project workspace.")
 	transpile_project_parser.add_argument(dest="out_format", help="The format used when transpiling.", choices=("None", "Create", "Replace", "Debug"))
 
+	# Command: Parameter Presets
+	parameter_presets_parser = subparsers.add_parser("parameter_presets", help="Create a parameters preset file.")
+	parameter_presets_parser.add_argument(dest="workspace", help="The absolute path to the VS Code project workspace.")
+
 	# Run parser
 	return parser.parse_args()
 
@@ -458,6 +548,9 @@ def _main():
 
 	if command == "set_options":
 		JinjaSQLTranspiler.set_options(**vars(args))
+
+	elif command == "parameter_presets":
+		JinjaSQLTranspiler.create_parameter_presets(**vars(args))
 
 	else:
 		jst = JinjaSQLTranspiler(args.workspace, args.out_format)

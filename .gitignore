@@ -17,6 +17,7 @@ venv.bak/
 
 # Project Configs & Default Folders
 */jst.options.json
+*/jst.presets.json
 /templates/
 /transpiled/
 /debug/

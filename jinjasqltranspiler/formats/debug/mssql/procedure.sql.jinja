@@ -22,7 +22,7 @@ DECLARE
 	{{ param|upper|replace("OUTPUT", "")|trim }}{%- if loop.last %};{% else %},{% endif %} -- OUTPUT
 
 	{% else %}
-	{{ param|trim }} = {{ param|columntovalue }}{%- if loop.last %};{% else %},{% endif %}
+	{{ param|trim }} = {{ param|columntovalue(presets) }}{%- if loop.last %};{% else %},{% endif %}
 
 	{% endif %}
 	{% endfor %}

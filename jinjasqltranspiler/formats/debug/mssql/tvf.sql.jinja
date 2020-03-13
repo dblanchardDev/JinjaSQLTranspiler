@@ -20,7 +20,7 @@ DECLARE
 	{{ param|trim }}{%- if loop.last %};{% else %},{% endif %}
 
 	{% else %}
-	{{ param|trim }} = {{ param|columntovalue }}{%- if loop.last %};{% else %},{% endif %}
+	{{ param|trim }} = {{ param|columntovalue(presets) }}{%- if loop.last %};{% else %},{% endif %}
 
 	{% endif %}
 	{% endfor %}
