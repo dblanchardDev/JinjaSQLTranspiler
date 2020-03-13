@@ -70,6 +70,20 @@
 				"group": "JST"
 			},
 			"problemMatcher": []
+		},
+		{
+			"label": "JST: Parameter Presets",
+			"type": "shell",
+			"command": "${config:python.pythonPath}",
+			"args": [
+				"jinjasqltranspiler\\jinjasqltranspiler.py",
+				"parameter_presets"
+			],
+			"presentation": {
+				"reveal": "always",
+				"group": "JST"
+			},
+			"problemMatcher": []
 		}
 	],
 	"inputs": [

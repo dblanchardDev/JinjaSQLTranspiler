@@ -15,14 +15,11 @@
 -- PARAMETERS =================================================================
 DECLARE
 	{% for param in parameters.split(",") %}
-	{% if "=" in param %}
-	{{ param|trim }}{%- if loop.last %};{% else %},{% endif %}
-
-	{% elif "OUTPUT" in param|upper %}
+	{% if "OUTPUT" in param|upper %}
 	{{ param|upper|replace("OUTPUT", "")|trim }}{%- if loop.last %};{% else %},{% endif %} -- OUTPUT
 
 	{% else %}
-	{{ param|trim }} = {{ param|columntovalue }}{%- if loop.last %};{% else %},{% endif %}
+	{{ param.split("=")|first|trim }} = {{ param|columntovalue(presets) }}{%- if loop.last %};{% else %},{% endif %}
 
 	{% endif %}
 	{% endfor %}
